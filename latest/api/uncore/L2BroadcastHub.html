@@ -1,0 +1,1910 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>L2BroadcastHub - uncore.L2BroadcastHub</title>
+          <meta name="description" content="L2BroadcastHub - uncore.L2BroadcastHub" />
+          <meta name="keywords" content="L2BroadcastHub uncore.L2BroadcastHub" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../index.html';
+            var hash = 'uncore.L2BroadcastHub';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../lib/class_big.png" />
+        <p id="owner"><a href="package.html" class="extype" name="uncore">uncore</a></p>
+        <h1>L2BroadcastHub</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">L2BroadcastHub</span><span class="result"> extends <a href="ManagerCoherenceAgent.html" class="extype" name="uncore.ManagerCoherenceAgent">ManagerCoherenceAgent</a> with <a href="BroadcastHubParameters.html" class="extype" name="uncore.BroadcastHubParameters">BroadcastHubParameters</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="BroadcastHubParameters.html" class="extype" name="uncore.BroadcastHubParameters">BroadcastHubParameters</a>, <a href="ManagerCoherenceAgent.html" class="extype" name="uncore.ManagerCoherenceAgent">ManagerCoherenceAgent</a>, <a href="HasCoherenceAgentWiringHelpers.html" class="extype" name="uncore.HasCoherenceAgentWiringHelpers">HasCoherenceAgentWiringHelpers</a>, <a href="CoherenceAgent.html" class="extype" name="uncore.CoherenceAgent">CoherenceAgent</a>, <a href="CoherenceAgentModule.html" class="extype" name="uncore.CoherenceAgentModule">CoherenceAgentModule</a>, <a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a>, <span class="extype" name="Chisel.UsesParameters">UsesParameters</span>, <span class="extype" name="Chisel.Module">Module</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="uncore.L2BroadcastHub"><span>L2BroadcastHub</span></li><li class="in" name="uncore.BroadcastHubParameters"><span>BroadcastHubParameters</span></li><li class="in" name="uncore.ManagerCoherenceAgent"><span>ManagerCoherenceAgent</span></li><li class="in" name="uncore.HasCoherenceAgentWiringHelpers"><span>HasCoherenceAgentWiringHelpers</span></li><li class="in" name="uncore.CoherenceAgent"><span>CoherenceAgent</span></li><li class="in" name="uncore.CoherenceAgentModule"><span>CoherenceAgentModule</span></li><li class="in" name="uncore.CoherenceAgentParameters"><span>CoherenceAgentParameters</span></li><li class="in" name="Chisel.UsesParameters"><span>UsesParameters</span></li><li class="in" name="Chisel.Module"><span>Module</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="uncore.L2BroadcastHub#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;():uncore.L2BroadcastHub"></a>
+      <a id="&lt;init&gt;:L2BroadcastHub"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">L2BroadcastHub</span><span class="params">()</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="Chisel.Module#&lt;&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&gt;(src:Chisel.Module):Unit"></a>
+      <a id="&lt;&gt;(Module):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$greater" class="name">&lt;&gt;</span><span class="params">(<span name="src">src: <span class="extype" name="Chisel.Module">Module</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#acquireConflicts" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="acquireConflicts:Chisel.UInt"></a>
+      <a id="acquireConflicts:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">acquireConflicts</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#acquireMatches" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="acquireMatches:Chisel.UInt"></a>
+      <a id="acquireMatches:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">acquireMatches</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#acquireReadys" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="acquireReadys:Chisel.UInt"></a>
+      <a id="acquireReadys:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">acquireReadys</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#acquire_idx" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="acquire_idx:Chisel.UInt"></a>
+      <a id="acquire_idx:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">acquire_idx</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="Chisel.Module#addClock" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addClock(clock:Chisel.Clock):Unit"></a>
+      <a id="addClock(Clock):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addClock</span><span class="params">(<span name="clock">clock: <span class="extype" name="Chisel.Clock">Clock</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#addDefaultReset" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addDefaultReset:Unit"></a>
+      <a id="addDefaultReset:Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addDefaultReset</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#addModule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addModule[T&lt;:Chisel.Module](c:=&gt;T)(implicitp:Chisel.Parameters):T"></a>
+      <a id="addModule[T&lt;:Module](⇒T)(Parameters):T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addModule</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="Chisel.Module">Module</span></span>]</span><span class="params">(<span name="c">c: ⇒ <span class="extype" name="Chisel.Module.addModule.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="p">p: <span class="extype" name="Chisel.Parameters">Parameters</span></span>)</span><span class="result">: <span class="extype" name="Chisel.Module.addModule.T">T</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#addModule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addModule[T&lt;:Chisel.Module](c:=&gt;T,f:PartialFunction[Any,Any]):T"></a>
+      <a id="addModule[T&lt;:Module](⇒T,PartialFunction[Any,Any]):T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addModule</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="Chisel.Module">Module</span></span>]</span><span class="params">(<span name="c">c: ⇒ <span class="extype" name="Chisel.Module.addModule.T">T</span></span>, <span name="f">f: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.Any">Any</span>, <span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result">: <span class="extype" name="Chisel.Module.addModule.T">T</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#addPin" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addPin[T&lt;:Chisel.Data](pin:T,name:String):T"></a>
+      <a id="addPin[T&lt;:Data](T,String):T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addPin</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="Chisel.Data">Data</span></span>]</span><span class="params">(<span name="pin">pin: <span class="extype" name="Chisel.Module.addPin.T">T</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="Chisel.Module.addPin.T">T</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#addResetPin" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addResetPin(reset:Chisel.Bool):Chisel.Bool"></a>
+      <a id="addResetPin(Bool):Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addResetPin</span><span class="params">(<span name="reset">reset: <span class="extype" name="Chisel.Bool">Bool</span></span>)</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="apply(name:String):Chisel.Data"></a>
+      <a id="apply(String):Data"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="Chisel.Data">Data</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="Chisel.Module#assert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="assert(cond:Chisel.Bool,message:String):Unit"></a>
+      <a id="assert(Bool,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">assert</span><span class="params">(<span name="cond">cond: <span class="extype" name="Chisel.Bool">Bool</span></span>, <span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#asserts" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asserts:scala.collection.mutable.ArrayBuffer[Chisel.Assert]"></a>
+      <a id="asserts:ArrayBuffer[Assert]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asserts</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<span class="extype" name="Chisel.Assert">Assert</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#bfs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bfs(visit:Chisel.Node=&gt;Unit):Unit"></a>
+      <a id="bfs((Node)⇒Unit):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bfs</span><span class="params">(<span name="visit">visit: (<span class="extype" name="Chisel.Node">Node</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#bindings" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bindings:scala.collection.mutable.ArrayBuffer[Chisel.Binding]"></a>
+      <a id="bindings:ArrayBuffer[Binding]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bindings</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<span class="extype" name="Chisel.Binding">Binding</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#block_acquires" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="block_acquires:Chisel.Bool"></a>
+      <a id="block_acquires:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">block_acquires</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="Chisel.Module#children" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="children:scala.collection.mutable.ArrayBuffer[Chisel.Module]"></a>
+      <a id="children:ArrayBuffer[Module]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">children</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<span class="extype" name="Chisel.Module">Module</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#clock" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clock:Chisel.Clock"></a>
+      <a id="clock:Clock"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clock</span><span class="result">: <span class="extype" name="Chisel.Clock">Clock</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#clocks" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clocks:scala.collection.mutable.ArrayBuffer[Chisel.Clock]"></a>
+      <a id="clocks:ArrayBuffer[Clock]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clocks</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<span class="extype" name="Chisel.Clock">Clock</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="Chisel.Module#debug" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="debug(x:Chisel.Node):Unit"></a>
+      <a id="debug(Node):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">debug</span><span class="params">(<span name="x">x: <span class="extype" name="Chisel.Node">Node</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#debugs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="debugs:scala.collection.mutable.LinkedHashSet[Chisel.Node]"></a>
+      <a id="debugs:LinkedHashSet[Node]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">debugs</span><span class="result">: <span class="extype" name="scala.collection.mutable.LinkedHashSet">LinkedHashSet</span>[<span class="extype" name="Chisel.Node">Node</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#defaultResetPin" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="defaultResetPin:Chisel.Bool"></a>
+      <a id="defaultResetPin:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">defaultResetPin</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#defaultWidth" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="defaultWidth:Int"></a>
+      <a id="defaultWidth:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">defaultWidth</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#dfs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dfs(visit:Chisel.Node=&gt;Unit):Unit"></a>
+      <a id="dfs((Node)⇒Unit):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dfs</span><span class="params">(<span name="visit">visit: (<span class="extype" name="Chisel.Node">Node</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.HasCoherenceAgentWiringHelpers#doInputRouting" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="doInputRouting[T&lt;:uncore.HasManagerTransactionId](in:Chisel.DecoupledIO[T],outs:Seq[Chisel.DecoupledIO[T]]):Unit"></a>
+      <a id="doInputRouting[T&lt;:HasManagerTransactionId](DecoupledIO[T],Seq[DecoupledIO[T]]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">doInputRouting</span><span class="tparams">[<span name="T">T &lt;: <a href="HasManagerTransactionId.html" class="extype" name="uncore.HasManagerTransactionId">HasManagerTransactionId</a></span>]</span><span class="params">(<span name="in">in: <span class="extype" name="Chisel.DecoupledIO">DecoupledIO</span>[<span class="extype" name="uncore.HasCoherenceAgentWiringHelpers.doInputRouting.T">T</span>]</span>, <span name="outs">outs: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="Chisel.DecoupledIO">DecoupledIO</span>[<span class="extype" name="uncore.HasCoherenceAgentWiringHelpers.doInputRouting.T">T</span>]]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HasCoherenceAgentWiringHelpers.html" class="extype" name="uncore.HasCoherenceAgentWiringHelpers">HasCoherenceAgentWiringHelpers</a></dd></dl></div>
+    </li><li name="uncore.HasCoherenceAgentWiringHelpers#doOutputArbitration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="doOutputArbitration[T&lt;:uncore.TileLinkChannel](out:Chisel.DecoupledIO[T],ins:Seq[Chisel.DecoupledIO[T]]):Unit"></a>
+      <a id="doOutputArbitration[T&lt;:TileLinkChannel](DecoupledIO[T],Seq[DecoupledIO[T]]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">doOutputArbitration</span><span class="tparams">[<span name="T">T &lt;: <a href="TileLinkChannel.html" class="extype" name="uncore.TileLinkChannel">TileLinkChannel</a></span>]</span><span class="params">(<span name="out">out: <span class="extype" name="Chisel.DecoupledIO">DecoupledIO</span>[<span class="extype" name="uncore.HasCoherenceAgentWiringHelpers.doOutputArbitration.T">T</span>]</span>, <span name="ins">ins: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="Chisel.DecoupledIO">DecoupledIO</span>[<span class="extype" name="uncore.HasCoherenceAgentWiringHelpers.doOutputArbitration.T">T</span>]]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HasCoherenceAgentWiringHelpers.html" class="extype" name="uncore.HasCoherenceAgentWiringHelpers">HasCoherenceAgentWiringHelpers</a></dd></dl></div>
+    </li><li name="uncore.BroadcastHubParameters#dqIdxBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dqIdxBits:Int"></a>
+      <a id="dqIdxBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dqIdxBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BroadcastHubParameters.html" class="extype" name="uncore.BroadcastHubParameters">BroadcastHubParameters</a></dd></dl></div>
+    </li><li name="Chisel.Module#emitDec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="emitDec(b:Chisel.Backend):String"></a>
+      <a id="emitDec(Backend):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">emitDec</span><span class="params">(<span name="b">b: <span class="extype" name="Chisel.Backend">Backend</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="Chisel.Module#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(that:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="that">that: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module → AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="Chisel.Module#findBinding" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="findBinding(m:Chisel.Node):Option[Chisel.Binding]"></a>
+      <a id="findBinding(Node):Option[Binding]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">findBinding</span><span class="params">(<span name="m">m: <span class="extype" name="Chisel.Node">Node</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="Chisel.Binding">Binding</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#free_sdq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="free_sdq:Chisel.Bool"></a>
+      <a id="free_sdq:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">free_sdq</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="Chisel.Module#getClassValNames" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClassValNames(c:Class[_]):scala.collection.mutable.ArrayBuffer[String]"></a>
+      <a id="getClassValNames(Class[_]):ArrayBuffer[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClassValNames</span><span class="params">(<span name="c">c: <span class="extype" name="scala.Predef.Class">Class</span>[_]</span>)</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#getPathName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getPathName(separator:String):String"></a>
+      <a id="getPathName(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getPathName</span><span class="params">(<span name="separator">separator: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#getPathName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getPathName:String"></a>
+      <a id="getPathName:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getPathName</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#getValNames" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getValNames:scala.collection.mutable.ArrayBuffer[String]"></a>
+      <a id="getValNames:ArrayBuffer[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getValNames</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#hasClock" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasClock:Boolean"></a>
+      <a id="hasClock:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasClock</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#hasExplicitClock" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasExplicitClock:Boolean"></a>
+      <a id="hasExplicitClock:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasExplicitClock</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#hasExplicitReset" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasExplicitReset:Boolean"></a>
+      <a id="hasExplicitReset:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasExplicitReset</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#hasReset" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasReset:Boolean"></a>
+      <a id="hasReset:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasReset</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#hasWhenCond" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasWhenCond:Boolean"></a>
+      <a id="hasWhenCond:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasWhenCond</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode:Int"></a>
+      <a id="hashCode:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module → AnyRef → Any</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#inClientReleaseQueue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="inClientReleaseQueue:Chisel.UInt"></a>
+      <a id="inClientReleaseQueue:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inClientReleaseQueue</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#inStoreQueue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="inStoreQueue:Chisel.UInt"></a>
+      <a id="inStoreQueue:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inStoreQueue</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#inVolWBQueue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="inVolWBQueue:Chisel.UInt"></a>
+      <a id="inVolWBQueue:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inVolWBQueue</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.ManagerCoherenceAgent#incoherent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="incoherent:Chisel.Vec[Chisel.Bool]"></a>
+      <a id="incoherent:Vec[Bool]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">incoherent</span><span class="result">: <span class="extype" name="Chisel.Vec">Vec</span>[<span class="extype" name="Chisel.Bool">Bool</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ManagerCoherenceAgent.html" class="extype" name="uncore.ManagerCoherenceAgent">ManagerCoherenceAgent</a> → <a href="CoherenceAgent.html" class="extype" name="uncore.CoherenceAgent">CoherenceAgent</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#innerBeatAddrBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="innerBeatAddrBits:Int"></a>
+      <a id="innerBeatAddrBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">innerBeatAddrBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#innerByteAddrBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="innerByteAddrBits:Int"></a>
+      <a id="innerByteAddrBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">innerByteAddrBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#innerDataBeats" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="innerDataBeats:Int"></a>
+      <a id="innerDataBeats:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">innerDataBeats</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#innerDataBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="innerDataBits:Int"></a>
+      <a id="innerDataBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">innerDataBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.ManagerCoherenceAgent#innerTL" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="innerTL:uncore.ManagerTileLinkIO"></a>
+      <a id="innerTL:ManagerTileLinkIO"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">innerTL</span><span class="result">: <a href="ManagerTileLinkIO.html" class="extype" name="uncore.ManagerTileLinkIO">ManagerTileLinkIO</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ManagerCoherenceAgent.html" class="extype" name="uncore.ManagerCoherenceAgent">ManagerCoherenceAgent</a> → <a href="CoherenceAgent.html" class="extype" name="uncore.CoherenceAgent">CoherenceAgent</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#innerTLParams" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="innerTLParams:Chisel.Parameters"></a>
+      <a id="innerTLParams:Parameters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">innerTLParams</span><span class="result">: <span class="extype" name="Chisel.Parameters">Parameters</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#internalDataBits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="internalDataBits:Int"></a>
+      <a id="internalDataBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internalDataBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.ManagerCoherenceAgent#io" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="io:uncore.ManagerTLIO"></a>
+      <a id="io:ManagerTLIO"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">io</span><span class="result">: <a href="ManagerTLIO.html" class="extype" name="uncore.ManagerTLIO">ManagerTLIO</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ManagerCoherenceAgent.html" class="extype" name="uncore.ManagerCoherenceAgent">ManagerCoherenceAgent</a> → Module</dd></dl></div>
+    </li><li name="Chisel.Module#ioVal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ioVal:Chisel.Data"></a>
+      <a id="ioVal:Data"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ioVal</span><span class="result">: <span class="extype" name="Chisel.Data">Data</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#isInput" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInput(node:Chisel.Node):Boolean"></a>
+      <a id="isInput(Node):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInput</span><span class="params">(<span name="node">node: <span class="extype" name="Chisel.Node">Node</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#is_in_sdq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="is_in_sdq:Chisel.Bool"></a>
+      <a id="is_in_sdq:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">is_in_sdq</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="Chisel.Module#keepInputs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="keepInputs(nodes:Seq[Chisel.Node]):Seq[Chisel.Node]"></a>
+      <a id="keepInputs(Seq[Node]):Seq[Node]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">keepInputs</span><span class="params">(<span name="nodes">nodes: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="Chisel.Node">Node</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="Chisel.Node">Node</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#level" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="level:Int"></a>
+      <a id="level:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">level</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#markComponent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="markComponent():Unit"></a>
+      <a id="markComponent():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">markComponent</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#moduleName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="moduleName:String"></a>
+      <a id="moduleName:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">moduleName</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#nAcquireTransactors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nAcquireTransactors:Int"></a>
+      <a id="nAcquireTransactors:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nAcquireTransactors</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.BroadcastHubParameters#nDataQueueLocations" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nDataQueueLocations:Int"></a>
+      <a id="nDataQueueLocations:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nDataQueueLocations</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BroadcastHubParameters.html" class="extype" name="uncore.BroadcastHubParameters">BroadcastHubParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#nReleaseTransactors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nReleaseTransactors:Int"></a>
+      <a id="nReleaseTransactors:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nReleaseTransactors</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#nTransactors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nTransactors:Int"></a>
+      <a id="nTransactors:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nTransactors</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="Chisel.Module#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="name:String"></a>
+      <a id="name:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">name</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#named" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="named:Boolean"></a>
+      <a id="named:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">named</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#names" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="names:scala.collection.mutable.HashMap[String,Chisel.Node]"></a>
+      <a id="names:HashMap[String,Node]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">names</span><span class="result">: <span class="extype" name="scala.collection.mutable.HashMap">HashMap</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="Chisel.Node">Node</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="Chisel.Module#nextIndex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nextIndex:Int"></a>
+      <a id="nextIndex:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nextIndex</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#nindex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nindex:Int"></a>
+      <a id="nindex:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nindex</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#nodes" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nodes:scala.collection.mutable.LinkedHashSet[Chisel.Node]"></a>
+      <a id="nodes:LinkedHashSet[Node]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nodes</span><span class="result">: <span class="extype" name="scala.collection.mutable.LinkedHashSet">LinkedHashSet</span>[<span class="extype" name="Chisel.Node">Node</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#outerBeatAddrBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="outerBeatAddrBits:Int"></a>
+      <a id="outerBeatAddrBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outerBeatAddrBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#outerByteAddrBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="outerByteAddrBits:Int"></a>
+      <a id="outerByteAddrBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outerByteAddrBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#outerDataBeats" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="outerDataBeats:Int"></a>
+      <a id="outerDataBeats:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outerDataBeats</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#outerDataBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="outerDataBits:Int"></a>
+      <a id="outerDataBits:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outerDataBits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.ManagerCoherenceAgent#outerTL" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="outerTL:uncore.ClientTileLinkIO"></a>
+      <a id="outerTL:ClientTileLinkIO"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outerTL</span><span class="result">: <a href="ClientTileLinkIO.html" class="extype" name="uncore.ClientTileLinkIO">ClientTileLinkIO</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ManagerCoherenceAgent.html" class="extype" name="uncore.ManagerCoherenceAgent">ManagerCoherenceAgent</a> → <a href="CoherenceAgent.html" class="extype" name="uncore.CoherenceAgent">CoherenceAgent</a></dd></dl></div>
+    </li><li name="uncore.CoherenceAgentParameters#outerTLParams" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="outerTLParams:Chisel.Parameters"></a>
+      <a id="outerTLParams:Parameters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outerTLParams</span><span class="result">: <span class="extype" name="Chisel.Parameters">Parameters</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#outer_arb" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="outer_arb:uncore.ClientUncachedTileLinkIOArbiter"></a>
+      <a id="outer_arb:ClientUncachedTileLinkIOArbiter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outer_arb</span><span class="result">: <a href="ClientUncachedTileLinkIOArbiter.html" class="extype" name="uncore.ClientUncachedTileLinkIOArbiter">ClientUncachedTileLinkIOArbiter</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#outer_data_ptr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="outer_data_ptr:uncore.DataQueueLocation"></a>
+      <a id="outer_data_ptr:DataQueueLocation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outer_data_ptr</span><span class="result">: <a href="DataQueueLocation.html" class="extype" name="uncore.DataQueueLocation">DataQueueLocation</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="Chisel.Module#ownIo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ownIo():Unit"></a>
+      <a id="ownIo():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ownIo</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#params" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="params:Chisel.Parameters"></a>
+      <a id="params:Parameters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">params</span><span class="result">: <span class="extype" name="Chisel.Parameters">Parameters</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#parent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="parent:Chisel.Module"></a>
+      <a id="parent:Module"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parent</span><span class="result">: <span class="extype" name="Chisel.Module">Module</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#pathParent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="pathParent:Chisel.Module"></a>
+      <a id="pathParent:Module"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pathParent</span><span class="result">: <span class="extype" name="Chisel.Module">Module</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#printf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printf(message:String,args:Chisel.Node*):Unit"></a>
+      <a id="printf(String,Node*):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printf</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="args">args: <span class="extype" name="Chisel.Node">Node</span>*</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#printfs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printfs:scala.collection.mutable.ArrayBuffer[Chisel.Printf]"></a>
+      <a id="printfs:ArrayBuffer[Printf]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printfs</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<span class="extype" name="Chisel.Printf">Printf</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#rel_data_cnt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rel_data_cnt:Chisel.UInt"></a>
+      <a id="rel_data_cnt:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rel_data_cnt</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#rel_data_done" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rel_data_done:Chisel.Bool"></a>
+      <a id="rel_data_done:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rel_data_done</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#releaseMatches" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="releaseMatches:Chisel.UInt"></a>
+      <a id="releaseMatches:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">releaseMatches</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#releaseReadys" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="releaseReadys:Chisel.UInt"></a>
+      <a id="releaseReadys:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">releaseReadys</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#release_idx" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="release_idx:Chisel.UInt"></a>
+      <a id="release_idx:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">release_idx</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="Chisel.Module#removeInputs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="removeInputs(nodes:Seq[Chisel.Node]):Seq[Chisel.Node]"></a>
+      <a id="removeInputs(Seq[Node]):Seq[Node]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeInputs</span><span class="params">(<span name="nodes">nodes: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="Chisel.Node">Node</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="Chisel.Node">Node</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#reset" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="reset:Chisel.Bool"></a>
+      <a id="reset:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reset</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#reset_=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="reset_=():Unit"></a>
+      <a id="reset_=():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: reset_$eq" class="name">reset_=</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#reset_=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="reset_=(r:Chisel.Bool):Unit"></a>
+      <a id="reset_=(Bool):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: reset_$eq" class="name">reset_=</span><span class="params">(<span name="r">r: <span class="extype" name="Chisel.Bool">Bool</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#resets" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="resets:scala.collection.mutable.HashMap[Chisel.Bool,Chisel.Bool]"></a>
+      <a id="resets:HashMap[Bool,Bool]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">resets</span><span class="result">: <span class="extype" name="scala.collection.mutable.HashMap">HashMap</span>[<span class="extype" name="Chisel.Bool">Bool</span>, <span class="extype" name="Chisel.Bool">Bool</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#sdq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sdq:Chisel.Vec[Chisel.UInt]"></a>
+      <a id="sdq:Vec[UInt]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sdq</span><span class="result">: <span class="extype" name="Chisel.Vec">Vec</span>[<span class="extype" name="Chisel.UInt">UInt</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.BroadcastHubParameters#sdqDepth" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sdqDepth:Int"></a>
+      <a id="sdqDepth:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sdqDepth</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BroadcastHubParameters.html" class="extype" name="uncore.BroadcastHubParameters">BroadcastHubParameters</a></dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#sdq_alloc_id" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sdq_alloc_id:Chisel.UInt"></a>
+      <a id="sdq_alloc_id:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sdq_alloc_id</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#sdq_enq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sdq_enq:Chisel.Bool"></a>
+      <a id="sdq_enq:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sdq_enq</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#sdq_rdy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sdq_rdy:Chisel.Bool"></a>
+      <a id="sdq_rdy:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sdq_rdy</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#sdq_val" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sdq_val:Chisel.UInt"></a>
+      <a id="sdq_val:UInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sdq_val</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="Chisel.Module#stripComponent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stripComponent(s:String):String"></a>
+      <a id="stripComponent(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stripComponent</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#switchKeys" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="switchKeys:scala.collection.mutable.Stack[Chisel.Bits]"></a>
+      <a id="switchKeys:Stack[Bits]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">switchKeys</span><span class="result">: <span class="extype" name="scala.collection.mutable.Stack">Stack</span>[<span class="extype" name="Chisel.Bits">Bits</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="Chisel.Module#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module → AnyRef → Any</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#trackerAcquireIOs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="trackerAcquireIOs:scala.collection.immutable.IndexedSeq[Chisel.DecoupledIO[uncore.AcquireFromSrc]]"></a>
+      <a id="trackerAcquireIOs:IndexedSeq[DecoupledIO[AcquireFromSrc]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">trackerAcquireIOs</span><span class="result">: <span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<span class="extype" name="Chisel.DecoupledIO">DecoupledIO</span>[<a href="AcquireFromSrc.html" class="extype" name="uncore.AcquireFromSrc">AcquireFromSrc</a>]]</span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#trackerList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="trackerList:scala.collection.immutable.IndexedSeq[uncore.BroadcastXactTracker]"></a>
+      <a id="trackerList:IndexedSeq[BroadcastXactTracker]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">trackerList</span><span class="result">: <span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="BroadcastXactTracker.html" class="extype" name="uncore.BroadcastXactTracker">BroadcastXactTracker</a>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#trackerReleaseIOs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="trackerReleaseIOs:scala.collection.immutable.IndexedSeq[Chisel.DecoupledIO[uncore.ReleaseFromSrc]]"></a>
+      <a id="trackerReleaseIOs:IndexedSeq[DecoupledIO[ReleaseFromSrc]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">trackerReleaseIOs</span><span class="result">: <span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<span class="extype" name="Chisel.DecoupledIO">DecoupledIO</span>[<a href="ReleaseFromSrc.html" class="extype" name="uncore.ReleaseFromSrc">ReleaseFromSrc</a>]]</span>
+      </span>
+      </h4>
+      
+    </li><li name="Chisel.Module#traversal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="traversal:Int"></a>
+      <a id="traversal:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">traversal</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#verilog_parameters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="verilog_parameters:String"></a>
+      <a id="verilog_parameters:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">verilog_parameters</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.L2BroadcastHub#voluntary" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="voluntary:Chisel.Bool"></a>
+      <a id="voluntary:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">voluntary</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#vwbdq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="vwbdq:Chisel.Vec[Chisel.UInt]"></a>
+      <a id="vwbdq:Vec[UInt]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">vwbdq</span><span class="result">: <span class="extype" name="Chisel.Vec">Vec</span>[<span class="extype" name="Chisel.UInt">UInt</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="uncore.L2BroadcastHub#vwbdq_enq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="vwbdq_enq:Chisel.Bool"></a>
+      <a id="vwbdq_enq:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">vwbdq_enq</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="Chisel.Module#whenCond" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="whenCond:Chisel.Bool"></a>
+      <a id="whenCond:Bool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">whenCond</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#whenConds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="whenConds:scala.collection.mutable.Stack[Chisel.Bool]"></a>
+      <a id="whenConds:Stack[Bool]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">whenConds</span><span class="result">: <span class="extype" name="scala.collection.mutable.Stack">Stack</span>[<span class="extype" name="Chisel.Bool">Bool</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="Chisel.Module#wires" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wires:Array[(String,Chisel.Bits)]"></a>
+      <a id="wires:Array[(String,Bits)]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wires</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="Chisel.Bits">Bits</span>)]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="uncore.BroadcastHubParameters">
+              <h3>Inherited from <a href="BroadcastHubParameters.html" class="extype" name="uncore.BroadcastHubParameters">BroadcastHubParameters</a></h3>
+            </div><div class="parent" name="uncore.ManagerCoherenceAgent">
+              <h3>Inherited from <a href="ManagerCoherenceAgent.html" class="extype" name="uncore.ManagerCoherenceAgent">ManagerCoherenceAgent</a></h3>
+            </div><div class="parent" name="uncore.HasCoherenceAgentWiringHelpers">
+              <h3>Inherited from <a href="HasCoherenceAgentWiringHelpers.html" class="extype" name="uncore.HasCoherenceAgentWiringHelpers">HasCoherenceAgentWiringHelpers</a></h3>
+            </div><div class="parent" name="uncore.CoherenceAgent">
+              <h3>Inherited from <a href="CoherenceAgent.html" class="extype" name="uncore.CoherenceAgent">CoherenceAgent</a></h3>
+            </div><div class="parent" name="uncore.CoherenceAgentModule">
+              <h3>Inherited from <a href="CoherenceAgentModule.html" class="extype" name="uncore.CoherenceAgentModule">CoherenceAgentModule</a></h3>
+            </div><div class="parent" name="uncore.CoherenceAgentParameters">
+              <h3>Inherited from <a href="CoherenceAgentParameters.html" class="extype" name="uncore.CoherenceAgentParameters">CoherenceAgentParameters</a></h3>
+            </div><div class="parent" name="Chisel.UsesParameters">
+              <h3>Inherited from <span class="extype" name="Chisel.UsesParameters">UsesParameters</span></h3>
+            </div><div class="parent" name="Chisel.Module">
+              <h3>Inherited from <span class="extype" name="Chisel.Module">Module</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../lib/template.js"></script>
+    </body>
+      </html>
