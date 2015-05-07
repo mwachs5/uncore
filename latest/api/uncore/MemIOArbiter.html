@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>MemSerdes - uncore.MemSerdes</title>
-          <meta name="description" content="MemSerdes - uncore.MemSerdes" />
-          <meta name="keywords" content="MemSerdes uncore.MemSerdes" />
+          <title>MemIOArbiter - uncore.MemIOArbiter</title>
+          <meta name="description" content="MemIOArbiter - uncore.MemIOArbiter" />
+          <meta name="keywords" content="MemIOArbiter uncore.MemIOArbiter" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../index.html';
-            var hash = 'uncore.MemSerdes';
+            var hash = 'uncore.MemIOArbiter';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -26,7 +26,7 @@
       <div id="definition">
         <img src="../lib/class_big.png" />
         <p id="owner"><a href="package.html" class="extype" name="uncore">uncore</a></p>
-        <h1>MemSerdes</h1>
+        <h1>MemIOArbiter</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -35,7 +35,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">MemSerdes</span><span class="result"> extends <a href="MIFModule.html" class="extype" name="uncore.MIFModule">MIFModule</a></span>
+        <span class="name">MemIOArbiter</span><span class="result"> extends <a href="MIFModule.html" class="extype" name="uncore.MIFModule">MIFModule</a></span>
       </span>
       </h4>
       
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="uncore.MemSerdes"><span>MemSerdes</span></li><li class="in" name="uncore.MIFModule"><span>MIFModule</span></li><li class="in" name="uncore.MIFParameters"><span>MIFParameters</span></li><li class="in" name="Chisel.UsesParameters"><span>UsesParameters</span></li><li class="in" name="Chisel.Module"><span>Module</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="uncore.MemIOArbiter"><span>MemIOArbiter</span></li><li class="in" name="uncore.MIFModule"><span>MIFModule</span></li><li class="in" name="uncore.MIFParameters"><span>MIFParameters</span></li><li class="in" name="Chisel.UsesParameters"><span>UsesParameters</span></li><li class="in" name="Chisel.Module"><span>Module</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -79,16 +79,16 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="uncore.MemSerdes#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;():uncore.MemSerdes"></a>
-      <a id="&lt;init&gt;:MemSerdes"></a>
+              <ol><li name="uncore.MemIOArbiter#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(arbN:Int):uncore.MemIOArbiter"></a>
+      <a id="&lt;init&gt;:MemIOArbiter"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">MemSerdes</span><span class="params">()</span>
+        <span class="name">MemIOArbiter</span><span class="params">(<span name="arbN">arbN: <span class="extype" name="scala.Int">Int</span></span>)</span>
       </span>
       </h4>
       
@@ -179,19 +179,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="uncore.MemSerdes#abits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="abits:Int"></a>
-      <a id="abits:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">abits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4>
-      
     </li><li name="Chisel.Module#addClock" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="addClock(clock:Chisel.Clock):Unit"></a>
       <a id="addClock(Clock):Unit"></a>
@@ -270,19 +257,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
-    </li><li name="uncore.MemSerdes#adone" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="adone:Chisel.Bool"></a>
-      <a id="adone:Bool"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">adone</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
-      </span>
-      </h4>
-      
     </li><li name="Chisel.Module#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(name:String):Chisel.Data"></a>
       <a id="apply(String):Data"></a>
@@ -296,6 +270,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
+    </li><li name="uncore.MemIOArbiter#arbN" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="arbN:Int"></a>
+      <a id="arbN:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">arbN</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -419,58 +406,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="uncore.MemSerdes#data_recv_cnt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="data_recv_cnt:Chisel.UInt"></a>
-      <a id="data_recv_cnt:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">data_recv_cnt</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#data_send_cnt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="data_send_cnt:Chisel.UInt"></a>
-      <a id="data_send_cnt:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">data_send_cnt</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#dbits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="dbits:Int"></a>
-      <a id="dbits:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">dbits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#ddone" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ddone:Chisel.Bool"></a>
-      <a id="ddone:Bool"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">ddone</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
-      </span>
-      </h4>
-      
     </li><li name="Chisel.Module#debug" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="debug(x:Chisel.Node):Unit"></a>
       <a id="debug(Node):Unit"></a>
@@ -750,21 +685,8 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module → AnyRef → Any</dd></dl></div>
-    </li><li name="uncore.MemSerdes#in_buf" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="in_buf:Chisel.UInt"></a>
-      <a id="in_buf:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">in_buf</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#io" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="io:Chisel.Bundle{valwide:uncore.MemIO;valnarrow:uncore.MemSerializedIO}"></a>
+    </li><li name="uncore.MemIOArbiter#io" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="io:Chisel.Bundle{valinner:Chisel.Vec[uncore.MemIO];valouter:uncore.MemIO}"></a>
       <a id="io:Bundle{.../*2definitionsintyperefinement*/}"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -775,7 +697,7 @@
         <span class="name">io</span><span class="result">: <span class="extype" name="Chisel.Bundle">Bundle</span> { ... /* 2 definitions in type refinement */ }</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="uncore.MemSerdes">MemSerdes</a> → Module</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="uncore.MemIOArbiter">MemIOArbiter</a> → Module</dd></dl></div>
     </li><li name="Chisel.Module#ioVal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ioVal:Chisel.Data"></a>
       <a id="ioVal:Data"></a>
@@ -1036,19 +958,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="uncore.MemSerdes#out_buf" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="out_buf:Chisel.UInt"></a>
-      <a id="out_buf:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">out_buf</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
     </li><li name="Chisel.Module#ownIo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ownIo():Unit"></a>
       <a id="ownIo():Unit"></a>
@@ -1127,32 +1036,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
-    </li><li name="uncore.MemSerdes#rbits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rbits:Int"></a>
-      <a id="rbits:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">rbits</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#recv_cnt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="recv_cnt:Chisel.UInt"></a>
-      <a id="recv_cnt:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">recv_cnt</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
     </li><li name="Chisel.Module#removeInputs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="removeInputs(nodes:Seq[Chisel.Node]):Seq[Chisel.Node]"></a>
       <a id="removeInputs(Seq[Node]):Seq[Node]"></a>
@@ -1218,110 +1101,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
-    </li><li name="uncore.MemSerdes#resp_val" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resp_val:Chisel.Bool"></a>
-      <a id="resp_val:Bool"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">resp_val</span><span class="result">: <span class="extype" name="Chisel.Bool">Bool</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#s_idle" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="s_idle:Chisel.UInt"></a>
-      <a id="s_idle:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">s_idle</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#s_read_addr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="s_read_addr:Chisel.UInt"></a>
-      <a id="s_read_addr:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">s_read_addr</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#s_write_addr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="s_write_addr:Chisel.UInt"></a>
-      <a id="s_write_addr:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">s_write_addr</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#s_write_data" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="s_write_data:Chisel.UInt"></a>
-      <a id="s_write_data:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">s_write_data</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#s_write_idle" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="s_write_idle:Chisel.UInt"></a>
-      <a id="s_write_idle:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">s_write_idle</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#send_cnt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="send_cnt:Chisel.UInt"></a>
-      <a id="send_cnt:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">send_cnt</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.MemSerdes#state" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="state:Chisel.UInt"></a>
-      <a id="state:UInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">state</span><span class="result">: <span class="extype" name="Chisel.UInt">UInt</span></span>
-      </span>
-      </h4>
-      
     </li><li name="Chisel.Module#stripComponent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="stripComponent(s:String):String"></a>
       <a id="stripComponent(String):String"></a>
@@ -1400,19 +1179,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Module</dd></dl></div>
-    </li><li name="uncore.MemSerdes#w" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="w:Int"></a>
-      <a id="w:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">w</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4>
-      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

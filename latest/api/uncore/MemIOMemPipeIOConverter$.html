@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>Probe - uncore.Probe</title>
-          <meta name="description" content="Probe - uncore.Probe" />
-          <meta name="keywords" content="Probe uncore.Probe" />
+          <title>MemIOMemPipeIOConverter - uncore.MemIOMemPipeIOConverter</title>
+          <meta name="description" content="MemIOMemPipeIOConverter - uncore.MemIOMemPipeIOConverter" />
+          <meta name="keywords" content="MemIOMemPipeIOConverter uncore.MemIOMemPipeIOConverter" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../index.html';
-            var hash = 'uncore.Probe$';
+            var hash = 'uncore.MemIOMemPipeIOConverter$';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -24,9 +24,9 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="Probe.html" title="Go to companion"><img src="../lib/object_to_class_big.png" /></a>
+        <img src="../lib/object_big.png" />
         <p id="owner"><a href="package.html" class="extype" name="uncore">uncore</a></p>
-        <h1><a href="Probe.html" title="Go to companion">Probe</a></h1>
+        <h1>MemIOMemPipeIOConverter</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -35,13 +35,11 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Probe</span>
+        <span class="name">MemIOMemPipeIOConverter</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains factories for <a href="Probe.html" class="extype" name="uncore.Probe">uncore.Probe</a> and <a href="ProbeToDst.html" class="extype" name="uncore.ProbeToDst">uncore.ProbeToDst</a></p><p>In general you should avoid using these factories directly and use
-<span class="extype" name="uncore.ManagerMetadata.makeProbe(UInt,Acquire)*">makeProbe</span> instead.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -61,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="uncore.Probe"><span>Probe</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="uncore.MemIOMemPipeIOConverter"><span>MemIOMemPipeIOConverter</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -152,29 +150,16 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="uncore.Probe#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(dst:Chisel.UInt,p_type:Chisel.UInt,addr_block:Chisel.UInt):uncore.ProbeToDst"></a>
-      <a id="apply(UInt,UInt,UInt):ProbeToDst"></a>
+    </li><li name="uncore.MemIOMemPipeIOConverter#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply(in:uncore.MemPipeIO):uncore.MemIO"></a>
+      <a id="apply(MemPipeIO):MemIO"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="dst">dst: <span class="extype" name="Chisel.UInt">UInt</span></span>, <span name="p_type">p_type: <span class="extype" name="Chisel.UInt">UInt</span></span>, <span name="addr_block">addr_block: <span class="extype" name="Chisel.UInt">UInt</span></span>)</span><span class="result">: <a href="ProbeToDst.html" class="extype" name="uncore.ProbeToDst">ProbeToDst</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="uncore.Probe#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(p_type:Chisel.UInt,addr_block:Chisel.UInt):uncore.Probe"></a>
-      <a id="apply(UInt,UInt):Probe"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="p_type">p_type: <span class="extype" name="Chisel.UInt">UInt</span></span>, <span name="addr_block">addr_block: <span class="extype" name="Chisel.UInt">UInt</span></span>)</span><span class="result">: <a href="Probe.html" class="extype" name="uncore.Probe">Probe</a></span>
+        <span class="name">apply</span><span class="params">(<span name="in">in: <a href="MemPipeIO.html" class="extype" name="uncore.MemPipeIO">MemPipeIO</a></span>)</span><span class="result">: <a href="MemIO.html" class="extype" name="uncore.MemIO">MemIO</a></span>
       </span>
       </h4>
       
