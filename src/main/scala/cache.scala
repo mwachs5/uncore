@@ -151,16 +151,16 @@ class MetadataArray[T <: Metadata](makeRstVal: () => T) extends CacheModule {
   val rst = rst_cnt < UInt(nSets)
   val waddr = Mux(rst, rst_cnt, io.write.bits.idx)
   val wdata = Mux(rst, rstVal, io.write.bits.data).toBits
-  val wmask = Mux(rst, SInt(-1), io.write.bits.way_en.toSInt).toUInt
+  val wmask = Mux(rst, SInt(-1), io.write.bits.way_en.toSInt).toBools
   when (rst) { rst_cnt := rst_cnt+UInt(1) }
 
   val metabits = rstVal.getWidth
-  val tag_arr = SeqMem(UInt(width = metabits*nWays), nSets)
+  val tag_arr = SeqMem(Vec(UInt(width = metabits), nWays), nSets)
   when (rst || io.write.valid) {
-    tag_arr.write(waddr, Fill(nWays, wdata), FillInterleaved(metabits, wmask))
+    tag_arr.write(waddr, Vec.fill(nWays)(wdata), wmask)
   }
 
-  val tags = tag_arr.read(io.read.bits.idx, io.read.valid)
+  val tags = tag_arr.read(io.read.bits.idx, io.read.valid).toBits
   io.resp := io.resp.fromBits(tags)
   io.read.ready := !rst && !io.write.valid // so really this could be a 6T RAM
   io.write.ready := !rst
@@ -318,16 +318,17 @@ class L2DataRWIO extends L2HellaCacheBundle with HasL2DataReadIO with HasL2DataW
 class L2DataArray(delay: Int) extends L2HellaCacheModule {
   val io = new L2DataRWIO().flip
 
-  val array = SeqMem(Bits(width=rowBits), nWays*nSets*refillCycles)
+  val array = SeqMem(Vec(Bits(width=8), rowBits/8), nWays*nSets*refillCycles)
   val ren = !io.write.valid && io.read.valid
   val raddr = Cat(OHToUInt(io.read.bits.way_en), io.read.bits.addr_idx, io.read.bits.addr_beat)
   val waddr = Cat(OHToUInt(io.write.bits.way_en), io.write.bits.addr_idx, io.write.bits.addr_beat)
-  val wmask = FillInterleaved(8, io.write.bits.wmask)
-  when (io.write.valid) { array.write(waddr, io.write.bits.data, wmask) }
+  val wdata = Vec.tabulate(rowBits/8)(i => io.write.bits.data(8*(i+1)-1,8*i))
+  val wmask = io.write.bits.wmask.toBools
+  when (io.write.valid) { array.write(waddr, wdata, wmask) }
 
   val r_req = Pipe(io.read.fire(), io.read.bits)
   io.resp := Pipe(r_req.valid, r_req.bits, delay)
-  io.resp.bits.data := Pipe(r_req.valid, array.read(raddr, ren), delay).bits
+  io.resp.bits.data := Pipe(r_req.valid, array.read(raddr, ren).toBits, delay).bits
   io.read.ready := !io.write.valid
   io.write.ready := Bool(true)
 }
