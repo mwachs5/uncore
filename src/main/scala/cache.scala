@@ -603,7 +603,6 @@ class L2VoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters) extends 
     "VoluntaryReleaseTracker accepted Release that wasn't voluntary!")
 }
 
-
 class L2AcquireTracker(trackerId: Int)(implicit p: Parameters) extends L2XactTracker()(p) {
   val io = new L2XactTrackerIO
   pinAllReadyValidLow(io)
@@ -1035,6 +1034,86 @@ class L2AcquireTracker(trackerId: Int)(implicit p: Parameters) extends L2XactTra
   io.has_acquire_match := iacq_can_merge || iacq_same_xact
   io.has_acquire_conflict := in_same_set && (state =/= s_idle) && !io.has_acquire_match
   //TODO: relax from in_same_set to xact.conflicts(io.iacq())?
+}
+
+class L2ProbeTracker(trackerId: Int)(implicit p: Parameters) extends L2XactTracker()(p) {
+  val io = new L2XactTrackerIO
+  pinAllReadyValidLow(io)
+
+  val s_idle :: s_meta_read :: s_meta_resp :: s_wb_req :: s_wb_resp :: s_outer_release :: s_meta_write :: Nil = Enum(UInt(), 7)
+  val state = Reg(init=s_idle)
+
+  val xact = Reg(new Probe()(p.alterPartial({case TLId => p(OuterTLId)})))
+  val xact_way_en = Reg{ Bits(width = nWays) }
+  val xact_old_meta = Reg{ new L2Metadata }
+
+  val xact_addr_idx = xact_addr_block(idxMSB,idxLSB)
+  val xact_addr_tag = xact_addr_block >> UInt(idxBits)
+
+  val pending_meta_write = Reg(init = Bool(false))
+
+  // Begin a transaction by getting the current block metadata
+  io.meta.read.valid := state === s_meta_read
+  io.meta.read.bits.id := UInt(trackerId)
+  io.meta.read.bits.idx := xact_addr_idx
+  io.meta.read.bits.tag := xact_addr_tag
+
+  // Issue a request to the writeback unit
+  io.wb.req.valid := state === s_wb_req
+  io.wb.req.bits.id := UInt(trackerId)
+  io.wb.req.bits.idx := xact_addr_idx
+  io.wb.req.bits.tag := xact_old_meta.tag
+  io.wb.req.bits.coh := xact_old_meta.coh
+
+  // Issue a release that is just an acknowledgment
+  val coh_on_miss = ClientMetadata.onReset
+  val coh_for_reply = Mux(is_hit, xact_old_meta.coh.outer, coh_on_miss)
+  val reply = coh_for_reply.makeRelease(req)
+  io.outer.release.valid := state === s_outer_release
+  io.outer.release.bits := reply
+
+  // End a transaction by updating the block metadata
+  val pending_coh_on_oprb = HierarchicalMetadata(
+                              xact_old_meta.coh.inner, // TODO set sharers
+                              xact_old_meta.coh.outer.onProbe(xact))
+
+  io.meta.write.valid := state === s_meta_write
+  io.meta.write.bits.id := UInt(trackerId)
+  io.meta.write.bits.idx := xact_addr_idx
+  io.meta.write.bits.way_en := xact_way_en
+  io.meta.write.bits.data.tag := xact_addr_tag
+  io.meta.write.bits.data.coh := pending_coh_on_oprb
+                                        
+  // State machine updates and transaction handler metadata intialization
+  when(state === s_idle && io.inner.probe.valid) {
+    xact := io.oprb()
+    xact_cmd := io.oprb.getCmd()
+    state := s_meta_read
+  }
+  when(state === s_meta_read && io.meta.read.ready) { state := s_meta_resp }
+  when(state === s_meta_resp && io.meta.resp.valid) {
+    xact_tag_match := io.meta.resp.bits.tag_match
+    xact_old_meta := io.meta.resp.bits.meta
+    xact_way_en := io.meta.resp.bits.way_en
+    val coh = io.meta.resp.bits.meta.coh
+    val tag_match = io.meta.resp.bits.tag_match
+    val is_hit = tag_match && coh.outer.isValid()
+    val needs_writeback = is_hit && coh.outer.makeRelease(xact).hasData()
+    val needs_iprb = is_hit && coh.inner.requiresProbes(xact)
+    val should_update_meta = is_hit && (coh.outer.onProbe(xact) != coh.outer
+    when (should_update_meta) { pending_meta_write := Bool(true) }
+    pending_coh := Mux(is_hit, pending_coh_on_hit, Mux(tag_match, coh, pending_coh_on_miss))
+    state := s_busy
+  }
+  when(state === s_outer_release && io.outer.release.ready) {
+    state := Mux(pending_meta_write, s_meta_write, s_idle)
+  }
+  when(state === s_meta_write && io.meta.write.ready) { state := s_idle }
+
+  // These IOs are used for routing in the parent
+  io.has_release_match := Bool(false)
+  io.has_acquire_match := Bool(false)
+  io.has_acquire_conflict := Bool(false)
 }
 
 class L2WritebackReq(implicit p: Parameters) extends L2Metadata()(p) with HasL2Id {

@@ -98,6 +98,7 @@ trait HasManagerSideCoherencePolicy extends HasDirectoryRepresentation {
   def getProbeType(acq: HasAcquireType, meta: ManagerMetadata): UInt
   def getGrantType(acq: HasAcquireType, meta: ManagerMetadata): UInt
   def getExclusiveGrantType(): UInt
+  def getCmdFromProbeType(p: HasProbeType): UInt = UInt(0) // TODO
 
   // Mutate ManagerMetadata based on messages or cmds
   def managerMetadataOnRelease(incoming: HasReleaseType, src: UInt, meta: ManagerMetadata): ManagerMetadata

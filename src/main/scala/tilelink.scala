@@ -223,6 +223,7 @@ trait HasProbeType extends HasTileLinkParameters {
   def is(t: UInt) = p_type === t
   def hasData(dummy: Int = 0) = Bool(false)
   def hasMultibeatData(dummy: Int = 0) = Bool(false)
+  def getCmd(dummy: Int = 0) = tlCoh.getCmdFromProbe(this)
 }
 
 trait HasReleaseType extends HasTileLinkParameters {
@@ -639,7 +640,7 @@ object PutAtomic {
   */
 class Probe(implicit p: Parameters) extends ManagerToClientChannel
   with HasCacheBlockAddress 
-  with HasProbeType
+  with HasProbeType 
 
 /** [[uncore.Probe]] with an extra field stating its destination id */
 class ProbeToDst(implicit p: Parameters) extends Probe()(p) with HasClientId
