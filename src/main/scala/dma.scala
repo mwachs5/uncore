@@ -23,6 +23,7 @@ abstract class DmaBundle(implicit val p: Parameters) extends ParameterizedBundle
 
 class DmaRequest(implicit p: Parameters) extends DmaBundle()(p) {
   val client_xact_id = UInt(width = dmaClientXactIdBits)
+  val cmd = UInt(width = DmaRequest.DMA_CMD_SZ)
   val source = UInt(width = addrBits)
   val dest = UInt(width = addrBits)
   val length = UInt(width = addrBits)
@@ -34,18 +35,27 @@ class DmaResponse(implicit p: Parameters) extends DmaBundle()(p) {
 }
 
 object DmaRequest {
+  val DMA_CMD_SZ = 2
+
+  val DMA_CMD_COPY = UInt(0, DMA_CMD_SZ)
+  val DMA_CMD_PFR = UInt(2, DMA_CMD_SZ)
+  val DMA_CMD_PFW = UInt(3, DMA_CMD_SZ)
+
   def apply(client_xact_id: UInt = UInt(0),
+            cmd: UInt,
             source: UInt,
             dest: UInt,
             length: UInt)(implicit p: Parameters): DmaRequest = {
     val req = Wire(new DmaRequest)
     req.client_xact_id := client_xact_id
+    req.cmd := cmd
     req.source := source
     req.dest := dest
     req.length := length
     req
   }
 }
+import DmaRequest._
 
 class DmaIO(implicit p: Parameters) extends DmaBundle()(p) {
   val req = Decoupled(new DmaRequest)
@@ -97,7 +107,9 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
   val put_inflight = Reg(Bool())
   val put_half = Reg(UInt(width = 1))
   val get_half = Reg(UInt(width = 1))
-  val get_done = !get_inflight.orR
+  val prefetching = Reg(Bool())
+  val prefetch_put = Reg(Bool())
+  val get_done = !get_inflight.orR || prefetching
 
   val src_block = Reg(UInt(width = tlBlockAddrBits))
   val dst_block = Reg(UInt(width = tlBlockAddrBits))
@@ -115,6 +127,7 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
 
   val (put_beat, put_done) = Counter(
     io.mem.acquire.fire() && acq.hasData(), tlDataBeats)
+  val prefetch_done = io.mem.acquire.fire() && acq.isPrefetch()
 
   val put_mask = Vec.tabulate(tlDataBytes) { i =>
     val byte_index = Cat(put_beat, UInt(i, tlByteAddrBits))
@@ -168,10 +181,15 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
     addr_block = src_block,
     alloc = Bool(false))
 
+  val prefetch_acquire = Mux(prefetch_put,
+    PutPrefetch(client_xact_id = UInt(0), addr_block = dst_block),
+    GetPrefetch(client_xact_id = UInt(0), addr_block = dst_block))
+
   val resp_id = Reg(UInt(width = dmaClientXactIdBits))
 
   io.mem.acquire.valid := state === s_get || (state === s_put && get_done)
-  io.mem.acquire.bits := Mux(state === s_get, get_acquire, put_acquire)
+  io.mem.acquire.bits := Mux(state === s_get,
+    get_acquire, Mux(prefetching, prefetch_acquire, put_acquire))
   io.mem.grant.ready := Bool(true)
   io.dma.req.ready := state === s_idle
   io.dma.resp.valid := state === s_resp
@@ -194,7 +212,15 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
     put_inflight := Bool(false)
     get_half := UInt(0)
     put_half := UInt(0)
-    state := s_get
+
+    when (io.dma.req.bits.cmd === DMA_CMD_COPY) {
+      prefetching := Bool(false)
+      state := s_get
+    } .otherwise {
+      prefetching := Bool(true)
+      prefetch_put := io.dma.req.bits.cmd(0)
+      state := s_put
+    }
   }
 
   when (state === s_get && io.mem.acquire.ready) {
@@ -221,7 +247,7 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
     }
   }
 
-  when (put_done) { // state === s_put
+  when (put_done || prefetch_done) { // state === s_put
     put_half := put_half + UInt(1)
     offset := UInt(0)
     when (bytes_left < UInt(blockBytes)) {
@@ -235,7 +261,8 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
   }
 
   when (state === s_wait && get_done && !put_inflight) {
-    state := Mux(bytes_left === UInt(0), s_resp, s_get)
+    state := Mux(bytes_left === UInt(0), s_resp,
+              Mux(prefetching, s_put, s_get))
   }
 
   when (io.dma.resp.fire()) { state := s_idle }
