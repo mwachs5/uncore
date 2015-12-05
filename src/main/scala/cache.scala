@@ -194,9 +194,14 @@ trait HasL2MetaWriteIO extends HasL2HellaCacheParameters {
   val write = Decoupled(new L2MetaWriteReq)
 }
 
+trait HasVLS extends HasVLSParameters {
+  val vls = Vec.fill(p(NVLSCacheSegments))(new VLSAllocation().flip)
+}
+
 class L2MetaRWIO(implicit p: Parameters) extends L2HellaCacheBundle()(p)
   with HasL2MetaReadIO
   with HasL2MetaWriteIO
+  with HasVLS
 
 class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val io = new L2MetaRWIO().flip
@@ -216,9 +221,21 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val s2_tag_match = s2_tag_match_way.orR
   val s2_hit_coh = Mux1H(s2_tag_match_way, wayMap((w: Int) => RegEnable(meta.io.resp(w).coh, s1_clk_en)))
 
+  val vls_base_tag = io.vls(0).pbase(tagBits + untagBits - 1, untagBits)
+  val vls_nways = io.vls(0).size(wayBits + untagBits, untagBits)
+  val vls_offset = io.read.bits.tag - vls_base_tag
+  val vls_active = vls_offset < vls_nways
+
   val replacer = p(Replacer)()
-  val s1_replaced_way_en = UIntToOH(replacer.way)
-  val s2_replaced_way_en = UIntToOH(RegEnable(replacer.way, s1_clk_en))
+  val s1_is_vls = Reg(next = Mux(io.read.valid, vls_active, Bool(false)))
+  val s1_vls_way = RegEnable(vls_offset(wayBits-1,0), io.read.valid)
+  val s2_is_vls = Reg(next = Mux(s1_clk_en, s1_is_vls, Bool(false)))
+  val s2_vls_way = RegEnable(s1_vls_way, s1_clk_en)
+  val vls_replace_way = (replacer.way % (UInt(nWays) - vls_nways)) + vls_nways
+  val replace_way = Mux(s1_is_vls, s1_vls_way, vls_replace_way)
+
+  val s1_replaced_way_en = UIntToOH(replace_way)
+  val s2_replaced_way_en = UIntToOH(RegEnable(replace_way, s1_clk_en))
   val s2_repl_meta = Mux1H(s2_replaced_way_en, wayMap((w: Int) => 
     RegEnable(meta.io.resp(w), s1_clk_en && s1_replaced_way_en(w))).toSeq)
   when(!s2_tag_match) { replacer.miss }
@@ -284,7 +301,12 @@ class L2HellaCacheBank(implicit p: Parameters) extends HierarchicalCoherenceAgen
   require(isPow2(nSets))
   require(isPow2(nWays)) 
 
+  val vls = Module(new VLSManager())
+  vls.io.conf <> io.gconf
+
   val meta = Module(new L2MetadataArray) // TODO: add delay knob
+  meta.io.vls <> vls.io.vls
+
   val data = Module(new L2DataArray(1))
   val tshrfile = Module(new TSHRFile)
   io.inner <> tshrfile.io.inner
@@ -292,6 +314,11 @@ class L2HellaCacheBank(implicit p: Parameters) extends HierarchicalCoherenceAgen
   tshrfile.io.incoherent <> io.incoherent
   meta.io <> tshrfile.io.meta
   data.io <> tshrfile.io.data
+
+  val counters = Module(new L2BankCounters())
+  counters.io.conf <> io.lconf
+  counters.io.hit := meta.io.resp.valid && meta.io.resp.bits.tag_match
+  counters.io.miss := meta.io.resp.valid && !meta.io.resp.bits.tag_match
 }
 
 class TSHRFileIO(implicit p: Parameters) extends HierarchicalTLIO()(p) {
