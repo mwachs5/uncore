@@ -96,7 +96,7 @@ class MetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) ext
       tag_arrs(i).write(waddr, wdata)
     }
     tag_readout(i) := tag_readout(i).fromBits(tag_arrs(i).read(io.read.bits.idx, io.read.valid && rmask(i)))
-    assert(tag_readout(i).toBits() != Bits(-1), "Tag readout does not match!\n")
+    // assert(tag_readout(i).toBits() === io.resp(i).toBits(), "Tag readout does not match!\n")
   }
 
   val tag_arr = SeqMem(Vec(UInt(width = metabits), nWays), nSets)
