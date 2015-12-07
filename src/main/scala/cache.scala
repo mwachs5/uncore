@@ -65,10 +65,10 @@ abstract class Metadata(implicit p: Parameters) extends CacheBundle()(p) {
 
 class MetaReadReq(implicit p: Parameters) extends CacheBundle()(p) {
   val idx  = Bits(width = idxBits)
+  val way_en = Bits(width = nWays)
 }
 
 class MetaWriteReq[T <: Metadata](gen: T)(implicit p: Parameters) extends MetaReadReq()(p) {
-  val way_en = Bits(width = nWays)
   val data = gen.cloneType
   override def cloneType = new MetaWriteReq(gen)(p).asInstanceOf[this.type]
 }
@@ -85,9 +85,20 @@ class MetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) ext
   val waddr = Mux(rst, rst_cnt, io.write.bits.idx)
   val wdata = Mux(rst, rstVal, io.write.bits.data).toBits
   val wmask = Mux(rst, SInt(-1), io.write.bits.way_en.toSInt).toBools
+  val rmask = Mux(rst, SInt(-1), io.read.bits.way_en.toSInt).toBools
   when (rst) { rst_cnt := rst_cnt+UInt(1) }
 
   val metabits = rstVal.getWidth
+  val tag_arrs = List.fill(nWays){ SeqMem(UInt(width = metabits), nSets) }
+  val tag_readout = Vec(rstVal.cloneType, nWays)
+  (0 until nWays).foreach { (i) =>
+    when (rst || (io.write.valid && wmask(i))) {
+      tag_arrs(i).write(waddr, wdata)
+    }
+    tag_readout(i) := tag_readout(i).fromBits(tag_arrs(i).read(io.read.bits.idx, io.read.valid && rmask(i)))
+    assert(tag_readout(i).toBits() != Bits(-1), "Tag readout does not match!\n")
+  }
+
   val tag_arr = SeqMem(Vec(UInt(width = metabits), nWays), nSets)
   when (rst || io.write.valid) {
     tag_arr.write(waddr, Vec.fill(nWays)(wdata), wmask)
@@ -95,6 +106,7 @@ class MetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) ext
 
   val tags = tag_arr.read(io.read.bits.idx, io.read.valid).toBits
   io.resp := io.resp.fromBits(tags)
+
   io.read.ready := !rst && !io.write.valid // so really this could be a 6T RAM
   io.write.ready := !rst
 }
@@ -228,6 +240,7 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val vls_offset = io.read.bits.tag - vls_base_tag
   val vls_active = vls_offset < vls_nways
   val way_en_1h = Mux(vls_active, UIntToOH(vls_offset(wayBits-1,0)), Bits((1 << wayBits) - 1))
+  meta.io.read.bits.way_en := SInt(-1).toBits
 
   val replacer = p(Replacer)()
   val s1_is_vls = Reg(next = Mux(io.read.valid, vls_active, Bool(false)))
