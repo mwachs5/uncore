@@ -240,14 +240,14 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val io = new L2MetaRWIO().flip
 
   def onReset = L2Metadata(UInt(0), HierarchicalMetadata.onReset)
-  val meta = Module(new VLSMetadataArray(onReset _))
+  val meta = if (p(UseVLS)) Module(new VLSMetadataArray(onReset _)) else Module(new MetadataArray(onReset _))
   meta.io.read <> io.read
   meta.io.write <> io.write
 
   val vls_base_tag = io.vls(0).pbase(tagBits + untagBits - 1, untagBits)
   val vls_nways = io.vls(0).size(wayBits + untagBits - 1, untagBits)
   val vls_offset = io.read.bits.tag - vls_base_tag
-  val vls_active = vls_offset < vls_nways
+  val vls_active = if (p(UseVLS)) vls_offset < vls_nways else Bool(false)
   val vls_way = vls_offset(wayBits-1,0)
   val way_en_1h = Mux(vls_active, UIntToOH(vls_way), (Vec.fill(nWays){Bool(true)}).toBits)
   val s1_way_en_1h = RegEnable(way_en_1h, io.read.valid)
