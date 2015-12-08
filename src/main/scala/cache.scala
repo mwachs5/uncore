@@ -85,20 +85,9 @@ class MetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) ext
   val waddr = Mux(rst, rst_cnt, io.write.bits.idx)
   val wdata = Mux(rst, rstVal, io.write.bits.data).toBits
   val wmask = Mux(rst, SInt(-1), io.write.bits.way_en.toSInt).toBools
-  val rmask = Mux(rst, SInt(-1), io.read.bits.way_en.toSInt).toBools
   when (rst) { rst_cnt := rst_cnt+UInt(1) }
 
   val metabits = rstVal.getWidth
-  val tag_arrs = List.fill(nWays){ SeqMem(UInt(width = metabits), nSets) }
-  val tag_readout = Vec(rstVal.cloneType, nWays)
-  (0 until nWays).foreach { (i) =>
-    when (rst || (io.write.valid && wmask(i))) {
-      tag_arrs(i).write(waddr, wdata)
-    }
-    tag_readout(i) := tag_readout(i).fromBits(tag_arrs(i).read(io.read.bits.idx, io.read.valid && rmask(i)))
-    // assert(tag_readout(i).toBits() === io.resp(i).toBits(), "Tag readout does not match!\n")
-  }
-
   val tag_arr = SeqMem(Vec(UInt(width = metabits), nWays), nSets)
   when (rst || io.write.valid) {
     tag_arr.write(waddr, Vec.fill(nWays)(wdata), wmask)
@@ -106,7 +95,37 @@ class MetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) ext
 
   val tags = tag_arr.read(io.read.bits.idx, io.read.valid).toBits
   io.resp := io.resp.fromBits(tags)
+  io.read.ready := !rst && !io.write.valid // so really this could be a 6T RAM
+  io.write.ready := !rst
+}
 
+class VLSMetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) extends CacheModule()(p) {
+  val rstVal = onReset()
+  val io = new Bundle {
+    val read = Decoupled(new MetaReadReq).flip
+    val write = Decoupled(new MetaWriteReq(rstVal)).flip
+    val resp = Vec(rstVal.cloneType, nWays).asOutput
+  }
+  val rst_cnt = Reg(init=UInt(0, log2Up(nSets+1)))
+  val rst = rst_cnt < UInt(nSets)
+  val waddr = Mux(rst, rst_cnt, io.write.bits.idx)
+  val wdata = Mux(rst, rstVal, io.write.bits.data).toBits
+  val wmask = Mux(rst, SInt(-1), io.write.bits.way_en.toSInt).toBools
+  val rmask = Mux(rst, SInt(-1), io.read.bits.way_en.toSInt).toBools
+  when (rst) { rst_cnt := rst_cnt+UInt(1) }
+
+  val metabits = rstVal.getWidth
+  val tag_arrs = List.fill(nWays){ SeqMem(UInt(width = metabits), nSets) }
+  val tag_readout = Vec(rstVal.cloneType, nWays)
+  val tags_vec = Vec.fill(nWays)(UInt(width = metabits))
+  (0 until nWays).foreach { (i) =>
+    when (rst || (io.write.valid && wmask(i))) {
+      tag_arrs(i).write(waddr, wdata)
+    }
+    tags_vec(i) := tag_arrs(i).read(io.read.bits.idx, io.read.valid && rmask(i))
+  }
+
+  io.resp := io.resp.fromBits(tags_vec.toBits)  
   io.read.ready := !rst && !io.write.valid // so really this could be a 6T RAM
   io.write.ready := !rst
 }
@@ -221,30 +240,32 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val io = new L2MetaRWIO().flip
 
   def onReset = L2Metadata(UInt(0), HierarchicalMetadata.onReset)
-  val meta = Module(new MetadataArray(onReset _))
+  val meta = Module(new VLSMetadataArray(onReset _))
   meta.io.read <> io.read
   meta.io.write <> io.write
+
+  val vls_base_tag = io.vls(0).pbase(tagBits + untagBits - 1, untagBits)
+  val vls_nways = io.vls(0).size(wayBits + untagBits - 1, untagBits)
+  val vls_offset = io.read.bits.tag - vls_base_tag
+  val vls_active = vls_offset < vls_nways
+  val vls_way = vls_offset(wayBits-1,0)
+  val way_en_1h = Mux(vls_active, UIntToOH(vls_way), (Vec.fill(nWays){Bool(true)}).toBits)
+  val s1_way_en_1h = RegEnable(way_en_1h, io.read.valid)
+  meta.io.read.bits.way_en := way_en_1h
  
   val s1_tag = RegEnable(io.read.bits.tag, io.read.valid)
   val s1_id = RegEnable(io.read.bits.id, io.read.valid)
   def wayMap[T <: Data](f: Int => T) = Vec((0 until nWays).map(f))
   val s1_clk_en = Reg(next = io.read.fire())
   val s1_tag_eq_way = wayMap((w: Int) => meta.io.resp(w).tag === s1_tag)
-  val s1_tag_match_way = wayMap((w: Int) => s1_tag_eq_way(w) && meta.io.resp(w).coh.outer.isValid()).toBits
+  val s1_tag_match_way = wayMap((w: Int) => s1_tag_eq_way(w) && meta.io.resp(w).coh.outer.isValid() && s1_way_en_1h(w).toBool).toBits
   val s2_tag_match_way = RegEnable(s1_tag_match_way, s1_clk_en)
   val s2_tag_match = s2_tag_match_way.orR
   val s2_hit_coh = Mux1H(s2_tag_match_way, wayMap((w: Int) => RegEnable(meta.io.resp(w).coh, s1_clk_en)))
 
-  val vls_base_tag = io.vls(0).pbase(tagBits + untagBits - 1, untagBits)
-  val vls_nways = io.vls(0).size(wayBits + untagBits - 1, untagBits)
-  val vls_offset = io.read.bits.tag - vls_base_tag
-  val vls_active = vls_offset < vls_nways
-  val way_en_1h = Mux(vls_active, UIntToOH(vls_offset(wayBits-1,0)), Bits((1 << wayBits) - 1))
-  meta.io.read.bits.way_en := SInt(-1).toBits
-
   val replacer = p(Replacer)()
   val s1_is_vls = Reg(next = Mux(io.read.valid, vls_active, Bool(false)))
-  val s1_vls_way = RegEnable(vls_offset(wayBits-1,0), io.read.valid)
+  val s1_vls_way = RegEnable(vls_way, io.read.valid)
   val s2_is_vls = Reg(next = Mux(s1_clk_en, s1_is_vls, Bool(false)))
   val s2_vls_way = RegEnable(s1_vls_way, s1_clk_en)
   val vls_replace_way = (replacer.way % (UInt(nWays) - vls_nways)) + vls_nways
@@ -569,10 +590,10 @@ class L2VoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters) extends 
   io.has_acquire_conflict := Bool(false)
 
   // Checks for illegal behavior
-  assert(!(state === s_meta_resp && io.meta.resp.valid && !io.meta.resp.bits.tag_match),
-    "VoluntaryReleaseTracker accepted Release for a block not resident in this cache!")
-  assert(!(state === s_idle && io.inner.release.fire() && !io.irel().isVoluntary()),
-    "VoluntaryReleaseTracker accepted Release that wasn't voluntary!")
+  // assert(!(state === s_meta_resp && io.meta.resp.valid && !io.meta.resp.bits.tag_match),
+    // "VoluntaryReleaseTracker accepted Release for a block not resident in this cache!")
+  // assert(!(state === s_idle && io.inner.release.fire() && !io.irel().isVoluntary()),
+    // "VoluntaryReleaseTracker accepted Release that wasn't voluntary!")
 }
 
 
