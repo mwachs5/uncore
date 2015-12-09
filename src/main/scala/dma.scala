@@ -107,9 +107,8 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
   val put_inflight = Reg(Bool())
   val put_half = Reg(UInt(width = 1))
   val get_half = Reg(UInt(width = 1))
-  val prefetching = Reg(Bool())
   val prefetch_put = Reg(Bool())
-  val get_done = !get_inflight.orR || prefetching
+  val get_done = !get_inflight.orR
 
   val src_block = Reg(UInt(width = tlBlockAddrBits))
   val dst_block = Reg(UInt(width = tlBlockAddrBits))
@@ -122,17 +121,21 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
   val acq = io.mem.acquire.bits
   val gnt = io.mem.grant.bits
 
-  val s_idle :: s_get :: s_put :: s_wait :: s_resp :: Nil = Enum(Bits(), 5)
+  val (s_idle :: s_get :: s_put :: s_prefetch ::
+       s_wait :: s_resp :: Nil) = Enum(Bits(), 6)
   val state = Reg(init = s_idle)
 
   val (put_beat, put_done) = Counter(
     io.mem.acquire.fire() && acq.hasData(), tlDataBeats)
-  val prefetch_done = io.mem.acquire.fire() && acq.isPrefetch()
 
   val put_mask = Vec.tabulate(tlDataBytes) { i =>
     val byte_index = Cat(put_beat, UInt(i, tlByteAddrBits))
     byte_index >= offset && byte_index < bytes_left
   }.toBits
+
+  val prefetch_sent = io.mem.acquire.fire() && io.mem.acquire.bits.isPrefetch()
+  val prefetch_busy = Reg(init = UInt(0, tlMaxClientXacts))
+  val (prefetch_id, _) = Counter(prefetch_sent, tlMaxClientXacts)
 
   val base_index = Cat(put_half, put_beat)
   val put_data = Wire(init = Bits(0, tlDataBits))
@@ -182,14 +185,18 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
     alloc = Bool(false))
 
   val prefetch_acquire = Mux(prefetch_put,
-    PutPrefetch(client_xact_id = UInt(0), addr_block = dst_block),
-    GetPrefetch(client_xact_id = UInt(0), addr_block = dst_block))
+    PutPrefetch(client_xact_id = prefetch_id, addr_block = dst_block),
+    GetPrefetch(client_xact_id = prefetch_id, addr_block = dst_block))
 
   val resp_id = Reg(UInt(width = dmaClientXactIdBits))
 
-  io.mem.acquire.valid := state === s_get || (state === s_put && get_done)
-  io.mem.acquire.bits := Mux(state === s_get,
-    get_acquire, Mux(prefetching, prefetch_acquire, put_acquire))
+  io.mem.acquire.valid := (state === s_get) ||
+                          (state === s_put && get_done) ||
+                          (state === s_prefetch && !prefetch_busy(prefetch_id))
+  io.mem.acquire.bits := MuxBundle(
+    state, prefetch_acquire, Seq(
+      s_get -> get_acquire,
+      s_put -> put_acquire))
   io.mem.grant.ready := Bool(true)
   io.dma.req.ready := state === s_idle
   io.dma.resp.valid := state === s_resp
@@ -214,12 +221,10 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
     put_half := UInt(0)
 
     when (io.dma.req.bits.cmd === DMA_CMD_COPY) {
-      prefetching := Bool(false)
       state := s_get
     } .otherwise {
-      prefetching := Bool(true)
       prefetch_put := io.dma.req.bits.cmd(0)
-      state := s_put
+      state := s_prefetch
     }
   }
 
@@ -236,8 +241,21 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
     }
   }
 
+  when (prefetch_sent) {
+    prefetch_busy := prefetch_busy | UIntToOH(prefetch_id)
+    when (bytes_left < UInt(blockBytes)) {
+      bytes_left := UInt(0)
+      state := s_resp
+    } .otherwise {
+      bytes_left := bytes_left - UInt(blockBytes)
+      dst_block := dst_block + UInt(1)
+    }
+  }
+
   when (io.mem.grant.fire()) {
-    when (gnt.hasData()) {
+    when (gnt.g_type === Grant.prefetchAckType) {
+      prefetch_busy := prefetch_busy & ~UIntToOH(gnt.client_xact_id)
+    } .elsewhen (gnt.hasData()) {
       val write_half = gnt.client_xact_id(0)
       val write_idx = Cat(write_half, gnt.addr_beat)
       get_inflight := get_inflight & ~UIntToOH(write_idx)
@@ -247,7 +265,7 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
     }
   }
 
-  when (put_done || prefetch_done) { // state === s_put
+  when (put_done) { // state === s_put
     put_half := put_half + UInt(1)
     offset := UInt(0)
     when (bytes_left < UInt(blockBytes)) {
@@ -261,8 +279,7 @@ class DmaTracker(implicit p: Parameters) extends DmaModule()(p)
   }
 
   when (state === s_wait && get_done && !put_inflight) {
-    state := Mux(bytes_left === UInt(0), s_resp,
-              Mux(prefetching, s_put, s_get))
+    state := Mux(bytes_left === UInt(0), s_resp, s_get)
   }
 
   when (io.dma.resp.fire()) { state := s_idle }
