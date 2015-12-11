@@ -240,7 +240,7 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val io = new L2MetaRWIO().flip
 
   def onReset = L2Metadata(UInt(0), HierarchicalMetadata.onReset)
-  val meta = if (p(UseVLS)) Module(new VLSMetadataArray(onReset _)) else Module(new MetadataArray(onReset _))
+  val meta = if (p(UseVLS) && p(SplitMetadata)) Module(new VLSMetadataArray(onReset _)) else Module(new MetadataArray(onReset _))
   meta.io.read <> io.read
   meta.io.write <> io.write
 
@@ -269,7 +269,7 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val s2_is_vls = Reg(next = Mux(s1_clk_en, s1_is_vls, Bool(false)))
   val s2_vls_way = RegEnable(s1_vls_way, s1_clk_en)
   val vls_replace_way = (replacer.way % (UInt(nWays) - vls_nways)) + vls_nways
-  val replace_way = Mux(s1_is_vls, s1_vls_way, vls_replace_way)
+  val replace_way = if (p(UseVLS) Mux(s1_is_vls, s1_vls_way, vls_replace_way) else replacer.way
 
   val s1_replaced_way_en = UIntToOH(replace_way)
   val s2_replaced_way_en = UIntToOH(RegEnable(replace_way, s1_clk_en))

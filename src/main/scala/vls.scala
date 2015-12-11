@@ -6,6 +6,7 @@ import cde.{Parameters, Field}
 
 case object UseVLS extends Field[Boolean]
 case object NVLSCacheSegments extends Field[Int]
+case object SplitMetadata extends Field[Boolean]
 
 trait HasVLSParameters {
   implicit val p: Parameters
