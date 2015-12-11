@@ -334,13 +334,12 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   replacer.access(io.read.bits.idx)
   replacer.update(s1_clk_en, s1_tag_match_way.orR, s1_idx, s1_hit_way)
 
-  val replacer = p(Replacer)()
   val s1_is_vls = Reg(next = Mux(io.read.valid, vls_active, Bool(false)))
   val s1_vls_way = RegEnable(vls_way, io.read.valid)
   val s2_is_vls = Reg(next = Mux(s1_clk_en, s1_is_vls, Bool(false)))
   val s2_vls_way = RegEnable(s1_vls_way, s1_clk_en)
   val vls_replace_way = (replacer.way % (UInt(nWays) - vls_nways)) + vls_nways
-  val replace_way = if (p(UseVLS) Mux(s1_is_vls, s1_vls_way, vls_replace_way) else replacer.way
+  val replace_way = if (p(UseVLS)) Mux(s1_is_vls, s1_vls_way, vls_replace_way) else replacer.way
 
   val s1_replaced_way_en = UIntToOH(replace_way)
   val s2_replaced_way_en = UIntToOH(RegEnable(replace_way, s1_clk_en))
