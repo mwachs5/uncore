@@ -3,6 +3,7 @@
 package uncore
 import Chisel._
 import cde.{Parameters, Field}
+import junctions.SmiIO
 
 case object NReleaseTransactors extends Field[Int]
 case object NProbeTransactors extends Field[Int]
@@ -103,9 +104,19 @@ abstract class ManagerCoherenceAgent(implicit p: Parameters) extends CoherenceAg
   def incoherent = io.incoherent
 }
 
+trait HasLocalConfIO {
+  val lconf = new SmiIO(64,12).flip // TODO: configure widths properly
+}
+
+trait HasGlobalConfIO {
+  val gconf = new SmiIO(64,12).flip // TODO: configure widths properly
+}
+
 class HierarchicalTLIO(implicit p: Parameters) extends CoherenceAgentBundle()(p)
   with HasInnerTLIO
   with HasCachedOuterTLIO
+  with HasGlobalConfIO
+  with HasLocalConfIO
 
 abstract class HierarchicalCoherenceAgent(implicit p: Parameters) extends CoherenceAgent()(p) {
   val io = new HierarchicalTLIO

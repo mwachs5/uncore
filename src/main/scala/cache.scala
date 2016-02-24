@@ -128,10 +128,10 @@ abstract class Metadata(implicit p: Parameters) extends CacheBundle()(p) {
 
 class MetaReadReq(implicit p: Parameters) extends CacheBundle()(p) {
   val idx  = Bits(width = idxBits)
+  val way_en = Bits(width = nWays)
 }
 
 class MetaWriteReq[T <: Metadata](gen: T)(implicit p: Parameters) extends MetaReadReq()(p) {
-  val way_en = Bits(width = nWays)
   val data = gen.cloneType
   override def cloneType = new MetaWriteReq(gen)(p).asInstanceOf[this.type]
 }
@@ -158,6 +158,37 @@ class MetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) ext
 
   val tags = tag_arr.read(io.read.bits.idx, io.read.valid).toBits
   io.resp := io.resp.fromBits(tags)
+  io.read.ready := !rst && !io.write.valid // so really this could be a 6T RAM
+  io.write.ready := !rst
+}
+
+class SplitMetadataArray[T <: Metadata](onReset: () => T)(implicit p: Parameters) extends CacheModule()(p) {
+  val rstVal = onReset()
+  val io = new Bundle {
+    val read = Decoupled(new MetaReadReq).flip
+    val write = Decoupled(new MetaWriteReq(rstVal)).flip
+    val resp = Vec(rstVal.cloneType, nWays).asOutput
+  }
+  val rst_cnt = Reg(init=UInt(0, log2Up(nSets+1)))
+  val rst = rst_cnt < UInt(nSets)
+  val waddr = Mux(rst, rst_cnt, io.write.bits.idx)
+  val wdata = Mux(rst, rstVal, io.write.bits.data).toBits
+  val wmask = Mux(rst, SInt(-1), io.write.bits.way_en.toSInt).toBools
+  val rmask = Mux(rst, SInt(-1), io.read.bits.way_en.toSInt).toBools
+  when (rst) { rst_cnt := rst_cnt+UInt(1) }
+
+  val metabits = rstVal.getWidth
+  val tag_arrs = List.fill(nWays){ SeqMem(nSets, UInt(width = metabits)) }
+  val tag_readout = Vec(rstVal.cloneType, nWays)
+  val tags_vec = Vec.fill(nWays)(UInt(width = metabits))
+  (0 until nWays).foreach { (i) =>
+    when (rst || (io.write.valid && wmask(i))) {
+      tag_arrs(i).write(waddr, wdata)
+    }
+    tags_vec(i) := tag_arrs(i).read(io.read.bits.idx, io.read.valid && rmask(i))
+  }
+
+  io.resp := io.resp.fromBits(tags_vec.toBits)  
   io.read.ready := !rst && !io.write.valid // so really this could be a 6T RAM
   io.write.ready := !rst
 }
@@ -257,24 +288,38 @@ trait HasL2MetaWriteIO extends HasL2HellaCacheParameters {
   val write = Decoupled(new L2MetaWriteReq)
 }
 
+trait HasVLS extends HasVLSParameters {
+  val vls = Vec.fill(p(NVLSCacheSegments))(new VLSAllocation().flip)
+}
+
 class L2MetaRWIO(implicit p: Parameters) extends L2HellaCacheBundle()(p)
   with HasL2MetaReadIO
   with HasL2MetaWriteIO
+  with HasVLS
 
 class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   val io = new L2MetaRWIO().flip
 
   def onReset = L2Metadata(UInt(0), HierarchicalMetadata.onReset)
-  val meta = Module(new MetadataArray(onReset _))
+  val meta = if (p(UseVLS) && p(SplitMetadata)) Module(new SplitMetadataArray(onReset _)) else Module(new MetadataArray(onReset _))
   meta.io.read <> io.read
   meta.io.write <> io.write
-  
+
+  val vls_base_tag = io.vls(0).pbase(tagBits + untagBits - 1, untagBits)
+  val vls_nways = io.vls(0).size(wayBits + untagBits - 1, untagBits)
+  val vls_offset = io.read.bits.tag - vls_base_tag
+  val vls_active = if (p(UseVLS)) vls_offset < vls_nways else Bool(false)
+  val vls_way = vls_offset(wayBits-1,0)
+  val way_en_1h = Mux(vls_active, UIntToOH(vls_way), (Vec.fill(nWays){Bool(true)}).toBits)
+  val s1_way_en_1h = RegEnable(way_en_1h, io.read.valid)
+  meta.io.read.bits.way_en := way_en_1h
+ 
   val s1_tag = RegEnable(io.read.bits.tag, io.read.valid)
   val s1_id = RegEnable(io.read.bits.id, io.read.valid)
   def wayMap[T <: Data](f: Int => T) = Vec((0 until nWays).map(f))
   val s1_clk_en = Reg(next = io.read.fire())
   val s1_tag_eq_way = wayMap((w: Int) => meta.io.resp(w).tag === s1_tag)
-  val s1_tag_match_way = wayMap((w: Int) => s1_tag_eq_way(w) && meta.io.resp(w).coh.outer.isValid()).toBits
+  val s1_tag_match_way = wayMap((w: Int) => s1_tag_eq_way(w) && meta.io.resp(w).coh.outer.isValid() && s1_way_en_1h(w).toBool).toBits
   val s1_idx = RegEnable(io.read.bits.idx, io.read.valid) // deal with stalls?
   val s2_tag_match_way = RegEnable(s1_tag_match_way, s1_clk_en)
   val s2_tag_match = s2_tag_match_way.orR
@@ -287,8 +332,15 @@ class L2MetadataArray(implicit p: Parameters) extends L2HellaCacheModule()(p) {
   replacer.access(io.read.bits.idx)
   replacer.update(s1_clk_en, s1_tag_match_way.orR, s1_idx, s1_hit_way)
 
-  val s1_replaced_way_en = UIntToOH(replacer.way)
-  val s2_replaced_way_en = UIntToOH(RegEnable(replacer.way, s1_clk_en))
+  val s1_is_vls = Reg(next = Mux(io.read.valid, vls_active, Bool(false)))
+  val s1_vls_way = RegEnable(vls_way, io.read.valid)
+  val s2_is_vls = Reg(next = Mux(s1_clk_en, s1_is_vls, Bool(false)))
+  val s2_vls_way = RegEnable(s1_vls_way, s1_clk_en)
+  val vls_replace_way = (replacer.way % (UInt(nWays) - vls_nways)) + vls_nways
+  val replace_way = if (p(UseVLS)) Mux(s1_is_vls, s1_vls_way, vls_replace_way) else replacer.way
+
+  val s1_replaced_way_en = UIntToOH(replace_way)
+  val s2_replaced_way_en = UIntToOH(RegEnable(replace_way, s1_clk_en))
   val s2_repl_meta = Mux1H(s2_replaced_way_en, wayMap((w: Int) => 
     RegEnable(meta.io.resp(w), s1_clk_en && s1_replaced_way_en(w))).toSeq)
 
@@ -353,7 +405,12 @@ class L2HellaCacheBank(implicit p: Parameters) extends HierarchicalCoherenceAgen
   require(isPow2(nSets))
   require(isPow2(nWays)) 
 
+  val vls = Module(new VLSManager())
+  vls.io.conf <> io.gconf
+
   val meta = Module(new L2MetadataArray) // TODO: add delay knob
+  meta.io.vls <> vls.io.vls
+
   val data = Module(new L2DataArray(1))
   val tshrfile = Module(new TSHRFile)
   io.inner <> tshrfile.io.inner
