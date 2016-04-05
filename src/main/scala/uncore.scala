@@ -3,6 +3,7 @@
 package uncore
 import Chisel._
 import cde.{Parameters, Field}
+import junctions._
 
 case object NReleaseTransactors extends Field[Int]
 case object NProbeTransactors extends Field[Int]
@@ -18,6 +19,7 @@ trait HasCoherenceAgentParameters {
   val nReleaseTransactors = 1
   val nAcquireTransactors = p(NAcquireTransactors)
   val nTransactors = nReleaseTransactors + nAcquireTransactors
+  val blockAddrBits = p(PAddrBits) - p(CacheBlockOffsetBits)
   val outerTLId = p(OuterTLId)
   val outerTLParams = p(TLKey(outerTLId))
   val outerDataBeats = outerTLParams.dataBeats
@@ -165,8 +167,7 @@ class ManagerXactTrackerIO(implicit p: Parameters) extends ManagerTLIO()(p)
 class HierarchicalXactTrackerIO(implicit p: Parameters) extends HierarchicalTLIO()(p)
   with HasTrackerAllocationIO
 
-abstract class XactTracker(implicit p: Parameters) extends CoherenceAgentModule()(p)
-    with HasDataBeatCounters {
+trait HasPendingBits extends HasDataBeatCounters {
   def addPendingBitWhenBeat[T <: HasBeat](inc: Bool, in: T): UInt =
     Fill(in.tlDataBeats, inc) &  UIntToOH(in.addr_beat)
 
@@ -209,7 +210,10 @@ abstract class XactTracker(implicit p: Parameters) extends CoherenceAgentModule(
 
   def addPendingBitAtSrcWhenVoluntary[T <: HasId with MightBeVoluntary](in: DecoupledIO[T]): UInt =
     addPendingBitWhenId(in.fire() && in.bits.isVoluntary(), in.bits)
+}
 
+abstract class XactTracker(implicit p: Parameters) extends CoherenceAgentModule()(p)
+    with HasPendingBits {
   def pinAllReadyValidLow[T <: Data](b: Bundle) {
     b.elements.foreach {
       _._2 match {

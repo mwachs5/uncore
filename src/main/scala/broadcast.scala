@@ -40,7 +40,7 @@ class L2BroadcastHub(implicit p: Parameters) extends ManagerCoherenceAgent()(p)
   // Create SHRs for outstanding transactions
   val trackerList =
     (0 until nReleaseTransactors).map(id =>
-      Module(new BroadcastVoluntaryReleaseTracker(id)(usingStoreDataQueue))) ++
+      Module(new BufferedBroadcastVoluntaryReleaseTracker(id)(usingStoreDataQueue))) ++
     (nReleaseTransactors until nTransactors).map(id =>
       Module(new BroadcastAcquireTracker(id)(usingStoreDataQueue)))
 
@@ -103,7 +103,7 @@ class L2BroadcastHub(implicit p: Parameters) extends ManagerCoherenceAgent()(p)
   doInputRouting(io.inner.finish, trackerList.map(_.io.inner.finish))
 
   // Create an arbiter for the one memory port
-  val outer_arb = Module(new ClientUncachedTileLinkIOArbiter(trackerList.size)
+  val outer_arb = Module(new ClientTileLinkIOArbiter(trackerList.size)
                     (usingStoreDataQueue.alterPartial({ case TLId => p(OuterTLId) })))
   outer_arb.io.in <> trackerList.map(_.io.outer)
   // Get the pending data out of the store data queue
@@ -125,66 +125,36 @@ class L2BroadcastHub(implicit p: Parameters) extends ManagerCoherenceAgent()(p)
 }
 
 class BroadcastXactTracker(implicit p: Parameters) extends XactTracker()(p) {
-  val io = new ManagerXactTrackerIO
+  val io = new HierarchicalXactTrackerIO
   pinAllReadyValidLow(io)
 }
 
-class BroadcastVoluntaryReleaseTracker(trackerId: Int)
-                                      (implicit p: Parameters) extends BroadcastXactTracker()(p) {
-  val s_idle :: s_busy :: Nil = Enum(UInt(), 2)
-  val state = Reg(init=s_idle)
+class BufferedBroadcastVoluntaryReleaseTracker(trackerId: Int)
+                                      (implicit p: Parameters) extends VoluntaryReleaseTracker(trackerId)(p)
+    with HasDataBuffer {
+  val io = new HierarchicalXactTrackerIO
+  pinAllReadyValidLow(io)
 
-  val xact = Reg(new BufferedReleaseFromSrc()(p.alterPartial({ case TLId => innerTLId })))
-  val coh = ManagerMetadata.onReset
+  val inner_coh = ManagerMetadata.onReset
 
-  val pending_irels = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  val pending_writes = Reg(init=Bits(0, width = io.outer.tlDataBeats))
-  val pending_ignt = Reg(init=Bool(false))
+  route(io.iacq().conflicts(xact_vol_irel))
 
-  val all_pending_done = !(pending_irels.orR || pending_writes.orR || pending_ignt)
+  // Initialize and accept pending Release beats
+  accept(s_busy)
 
-  // Accept a voluntary Release (and any further beats of data)
-  pending_irels := (pending_irels & dropPendingBitWhenBeatHasData(io.inner.release))
-  io.inner.release.ready := ((state === s_idle) && io.irel().isVoluntary()) || pending_irels.orR
-  when(io.inner.release.fire()) { xact.data_buffer(io.irel().addr_beat) := io.irel().data }
-
-  // Write the voluntarily written back data to outer memory using an Acquire.PutBlock
   //TODO: Use io.outer.release instead?
-  pending_writes := (pending_writes & dropPendingBitWhenBeatHasData(io.outer.acquire)) |
-                      addPendingBitWhenBeatHasData(io.inner.release)
-  val curr_write_beat = PriorityEncoder(pending_writes)
-  io.outer.acquire.valid := state === s_busy && pending_writes.orR
-  io.outer.acquire.bits := PutBlock( 
-                               client_xact_id = UInt(trackerId),
-                               addr_block = xact.addr_block,
-                               addr_beat = curr_write_beat,
-                               data = xact.data_buffer(curr_write_beat))
-                             (p.alterPartial({ case TLId => outerTLId }))
+  write(io.outer.acquire, 
+        PutBlock( 
+             client_xact_id = UInt(trackerId),
+             addr_block = xact_addr_block,
+             addr_beat = curr_write_beat,
+             data = data_buffer(curr_write_beat))
+           (p.alterPartial({ case TLId => outerTLId })),
+        dropPendingBitWhenBeatHasData(io.outer.acquire))
 
-  // Send an acknowledgement
-  io.inner.grant.valid := state === s_busy && pending_ignt && !pending_irels && io.outer.grant.valid
-  io.inner.grant.bits := coh.makeGrant(xact)
-  when(io.inner.grant.fire()) { pending_ignt := Bool(false) }
-  io.outer.grant.ready := state === s_busy && io.inner.grant.ready
+  acknowledge(io.outer.grant.valid, io.inner.grant.ready)
 
-  // State machine updates and transaction handler metadata intialization
-  when(state === s_idle && io.inner.release.valid && io.alloc.irel) {
-    xact := io.irel()
-    when(io.irel().hasMultibeatData()) {
-      pending_irels := dropPendingBitWhenBeatHasData(io.inner.release)
-    }. otherwise { 
-      pending_irels := UInt(0)
-    }
-    pending_writes := addPendingBitWhenBeatHasData(io.inner.release)
-    pending_ignt := io.irel().requiresAck()
-    state := s_busy
-  }
   when(state === s_busy && all_pending_done) { state := s_idle }
-
-  // These IOs are used for routing in the parent
-  io.matches.iacq := (state =/= s_idle) && xact.conflicts(io.iacq())
-  io.matches.irel := (state =/= s_idle) && xact.conflicts(io.irel()) && io.irel().isVoluntary()
-  io.matches.oprb := Bool(false)
 
   // Checks for illegal behavior
   assert(!(state === s_idle && io.inner.release.fire() && !io.irel().isVoluntary()),
