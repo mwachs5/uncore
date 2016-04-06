@@ -107,12 +107,13 @@ class BufferedBroadcastAcquireTracker(trackerId: Int)(implicit p: Parameters)
 
   accept(Bool(false), Bool(false), s_inner_probe)
   when(state === s_idle && io.inner.acquire.valid && io.alloc.iacq) {
-    initializeProbes(~inner_coh.full(), xact_iacq.client_id, xact_iacq.requiresSelfProbe())
+    //initializeProbes(~inner_coh.full(), xact_iacq.client_id, xact_iacq.requiresSelfProbe())
   }
 
-  innerProbe(
-    inner_coh.makeProbe(curr_probe_dst, xact_iacq, xact_addr_block),
-    s_outer_acquire)
+  //val curr_probe_dst = PriorityEncoder(pending_iprbs)
+  //innerProbe(
+  //  inner_coh.makeProbe(UInt(0), xact_iacq, xact_addr_block),
+  //  s_outer_acquire)
 
   // Handle incoming releases from clients, which may reduce sharer counts
   // and/or write back dirty data, and may be unexpected voluntary releases

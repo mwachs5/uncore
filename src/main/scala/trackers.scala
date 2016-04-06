@@ -75,12 +75,12 @@ trait TriggersInnerProbes extends HasBlockAddressBuffer
     with HasPendingBits {
   val io: HierarchicalXactTrackerIO
 
-  lazy val pending_iprbs = Reg(init = Bits(0, width = io.inner.tlNCachingClients))
+  lazy val pending_iprbs = Reg(UInt(width = innerNCachingClients))
   lazy val curr_probe_dst = PriorityEncoder(pending_iprbs)
 
   lazy val pending_irels =
     connectTwoWayBeatCounter(
-      max = io.inner.tlNCachingClients,
+      max = innerNCachingClients,
       up = io.inner.probe,
       down = io.inner.release,
       trackDown = (r: Release) => !r.isVoluntary())._1
@@ -224,7 +224,6 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
   lazy val curr_read_beat = PriorityEncoder(pending_reads)
   lazy val curr_write_beat = PriorityEncoder(pending_writes)
 
-
   // Used to decide when to escape from s_busy
   lazy val all_pending_done =
     !(pending_reads.orR ||
@@ -290,7 +289,7 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
       // Pick out the specific beats of data that need to be read
       pending_reads := Mux(
         io.iacq().isBuiltInType(Acquire.getBlockType) || !io.iacq().isBuiltInType(),
-        ~UInt(0, innerDataBeats),
+        ~UInt(0, width = innerDataBeats),
         addPendingBitWhenBeatNeedsRead(io.inner.acquire, Bool(alwaysWriteFullBeat)))
       pending_writes := addPendingBitWhenBeatHasDataAndAllocs(io.inner.acquire)
       pending_resps := UInt(0)
@@ -346,9 +345,8 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
                        addPendingBitWhenBeatNeedsRead(io.inner.acquire, Bool(alwaysWriteFullBeat))
     port.valid := state === s_busy && pending_reads.orR && !pending_ognt
     port.bits := packet
-
-
   }
+
   // We write data to the cache at this level if it was Put here with allocate flag,
   // written back dirty, or refilled from outer memory.
   def write[T <: Data](port: DecoupledIO[T], packet: T, drop: UInt) {

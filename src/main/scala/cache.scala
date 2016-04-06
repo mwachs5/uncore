@@ -550,12 +550,15 @@ trait HasAMOALU extends HasAcquireMetadataBuffer
   // Provide a single ALU per tracker to merge Puts and AMOs with data being
   // refilled, written back, or extant in the cache
   val amoalu = Module(new AMOALU(rhsIsAligned = true))
-  amoalu.io.addr := Cat(xact_addr_block, xact_addr_beat, xact_addr_byte)
-  amoalu.io.cmd := xact_op_code
-  amoalu.io.typ := xact_op_size
-  amoalu.io.lhs := io.data.resp.bits.data // default, overwritten by calls to mergeData
-  amoalu.io.rhs := data_buffer.head  // default, overwritten by calls to mergeData
   val amo_result = Reg(init = UInt(0, innerDataBits))
+  
+  def initializeAMOALUIOs() {
+    amoalu.io.addr := Cat(xact_addr_block, xact_addr_beat, xact_addr_byte)
+    amoalu.io.cmd := xact_op_code
+    amoalu.io.typ := xact_op_size
+    amoalu.io.lhs := io.data.resp.bits.data // default, overwritten by calls to mergeData
+    amoalu.io.rhs := data_buffer.head  // default, overwritten by calls to mergeData
+  }
 
   // Utility function for applying any buffered stored data to the cache line
   // before storing it back into the data array
@@ -577,30 +580,15 @@ trait HasAMOALU extends HasAcquireMetadataBuffer
   }
 }
 
-trait TriggersWritebacks extends HasCoherenceMetadataBuffer {
-  def wbReq(next_state: UInt) {
-    io.wb.req.valid := state === s_wb_req
-    io.wb.req.bits.id := UInt(trackerId)
-    io.wb.req.bits.idx := xact_addr_idx
-    io.wb.req.bits.tag := xact_old_meta.tag
-    io.wb.req.bits.coh := xact_old_meta.coh
-    io.wb.req.bits.way_en := xact_way_en
-
-    when(state === s_wb_req && io.wb.req.ready) { state := s_wb_resp }
-    when(state === s_wb_resp && io.wb.resp.valid) { state := s_outer_acquire }
-  }
-}
-
 trait HasCoherenceMetadataBuffer extends HasOuterCacheParameters
-    with HasBlockAddressBuffer
-    with TriggersInnerProbes {
+    with HasBlockAddressBuffer {
   val trackerId: Int
   val io: L2XactTrackerIO
 
   lazy val xact_way_en = Reg{ Bits(width = nWays) }
   lazy val xact_old_meta = Reg{ new L2Metadata }
   lazy val pending_coh = Reg{ xact_old_meta.coh }
-  lazy val pending_meta_write = Reg(init = Bool(false))
+  val pending_meta_write = Reg{ Bool() }
 
   lazy val inner_coh = pending_coh.inner
   lazy val outer_coh = pending_coh.outer
@@ -615,7 +603,6 @@ trait HasCoherenceMetadataBuffer extends HasOuterCacheParameters
       pending_coh := next
     }
   }
-
 
   def metaRead(next_state: UInt) {
     io.meta.read.valid := state === s_meta_read
@@ -644,6 +631,20 @@ trait HasCoherenceMetadataBuffer extends HasOuterCacheParameters
   }
 }
 
+trait TriggersWritebacks extends HasCoherenceMetadataBuffer {
+  def wbReq(next_state: UInt) {
+    io.wb.req.valid := state === s_wb_req
+    io.wb.req.bits.id := UInt(trackerId)
+    io.wb.req.bits.idx := xact_addr_idx
+    io.wb.req.bits.tag := xact_old_meta.tag
+    io.wb.req.bits.coh := xact_old_meta.coh
+    io.wb.req.bits.way_en := xact_way_en
+
+    when(state === s_wb_req && io.wb.req.ready) { state := s_wb_resp }
+    when(state === s_wb_resp && io.wb.resp.valid) { state := s_outer_acquire }
+  }
+}
+
 class CacheVoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters) extends VoluntaryReleaseTracker(trackerId)(p)
     with HasRowBeatCounters
     with HasCoherenceMetadataBuffer
@@ -654,11 +655,20 @@ class CacheVoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters) exten
   // Avoid metatdata races with writebacks
   route(inSameSet(io.iacq().addr_block, xact_addr_block))
 
-  // Initialize and accept pending Release beats
-  accept(s_meta_read)
+  // End a transaction by updating the block metadata
+  metaWrite(
+    L2Metadata(
+      tag = xact_addr_tag,
+      inner = xact_old_meta.coh.inner.onRelease(xact_vol_irel),
+      outer = Mux(xact_vol_irel.hasData(),
+                  xact_old_meta.coh.outer.onHit(M_XWR),
+                  xact_old_meta.coh.outer)),
+    s_idle)
 
-  // Begin a transaction by getting the current block metadata
-  metaRead(s_busy)
+  when(state === s_busy && all_pending_done) { state := s_meta_write  }
+
+  // Send an acknowledgement
+  acknowledge(!pending_writes.orR, Bool(false))
 
   // Write the voluntarily written back data to this cache
   write(io.data.write, 
@@ -671,20 +681,11 @@ class CacheVoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters) exten
           data = data_buffer(curr_write_beat)),
         dropPendingBit(io.data.write))
 
-  // Send an acknowledgement
-  acknowledge(!pending_writes.orR, Bool(false))
+  // Begin a transaction by getting the current block metadata
+  metaRead(s_busy)
 
-  when(state === s_busy && all_pending_done) { state := s_meta_write  }
-
-  // End a transaction by updating the block metadata
-  metaWrite(
-    L2Metadata(
-      tag = xact_addr_tag,
-      inner = xact_old_meta.coh.inner.onRelease(xact_vol_irel),
-      outer = Mux(xact_vol_irel.hasData(),
-                  xact_old_meta.coh.outer.onHit(M_XWR),
-                  xact_old_meta.coh.outer)),
-    s_idle)
+  // Initialize and accept pending Release beats
+  accept(s_meta_read)
 
   // Checks for illegal behavior
   assert(!(state === s_meta_resp && io.meta.resp.valid && !io.meta.resp.bits.tag_match),
@@ -694,12 +695,27 @@ class CacheVoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters) exten
 }
 
 class CacheAcquireTracker(trackerId: Int)(implicit p: Parameters) extends AcquireTracker(trackerId)(p)
-    with HasCoherenceMetadataBuffer
     with HasRowBeatCounters
     with HasAMOALU
     with TriggersWritebacks {
   val io = new L2XactTrackerIO
   pinAllReadyValidLow(io)
+  initializeAMOALUIOs()
+
+  val ignt_from_iacq = pending_coh.inner.makeGrant(
+                              sec = ignt_q.io.deq.bits,
+                              manager_xact_id = UInt(trackerId), 
+                              data = Mux(xact_iacq.isAtomic(),
+                                       amo_result,
+                                       data_buffer(ignt_data_idx)))
+  val pending_coh_on_ognt = HierarchicalMetadata(
+                              ManagerMetadata.onReset,
+                              pending_coh.outer.onGrant(io.outer.grant.bits, xact_op_code))
+  val pending_coh_on_ignt = HierarchicalMetadata(
+                              pending_coh.inner.onGrant(io.ignt()),
+                              Mux(ognt_data_done,
+                                pending_coh_on_ognt.outer,
+                                pending_coh.outer))
 
   // TileLink allows for Gets-under-Get
   // and Puts-under-Put, and either may also merge with a preceding prefetch
@@ -727,22 +743,112 @@ class CacheAcquireTracker(trackerId: Int)(implicit p: Parameters) extends Acquir
     iacq_in_same_set, 
     Mux(before_wb_alloc, irel_in_same_set, io.irel().conflicts(xact_addr_block)))
 
-  // Actual transaction processing logic begins here:
-  //
-  // First, take care of accpeting new acquires or secondary misses
-  val iacq_can_merge = acquiresAreMergeable(io.iacq()) &&
-                         state =/= s_idle && state =/= s_meta_write &&
-                         !all_pending_done &&
-                         !io.inner.release.fire() &&
-                         !io.outer.grant.fire() &&
-                         !io.data.resp.valid &&
-                         ignt_q.io.enq.ready && ignt_q.io.deq.valid
+  // End a transaction by updating the block metadata
+  metaWrite(L2Metadata(xact_addr_tag, pending_coh), s_idle)
 
-  accept(iacq_can_merge, Bool(true), s_meta_read)
-  when(state === s_idle && io.inner.acquire.valid && io.alloc.iacq) {
-    amo_result := UInt(0)
-    pending_meta_write := Bool(false)
+  // Wait for everything to quiesce
+  when(state === s_busy && all_pending_done) {
+    wmask_buffer.foreach { w => w := UInt(0) } // This is the only reg that must be clear in s_idle
+    state := Mux(pending_meta_write, s_meta_write, s_idle)
   }
+
+  // We must wait for as many Finishes as we sent Grants
+  io.inner.finish.ready := state === s_busy
+
+  // Acknowledge or respond with data
+  innerGrant(ignt_from_iacq, addPendingBitInternal(io.data.resp))
+
+  updatePendingCohWhen(io.inner.grant.fire() && io.ignt().last(), pending_coh_on_ignt)
+
+  // Do write
+  write(io.data.write, 
+        L2DataWriteReq(
+          id = UInt(trackerId),
+          way_en = xact_way_en,
+          addr_idx = xact_addr_idx,
+          addr_beat = curr_write_beat,
+          wmask = ~UInt(0, io.data.write.bits.wmask.getWidth),
+          data = data_buffer(curr_write_beat)),
+        dropPendingBit(io.data.write))
+
+  // Get resp
+  pending_resps := (pending_resps & dropPendingBitInternal(io.data.resp)) |
+                     addPendingBitInternal(io.data.read)
+
+  mergeDataInternal(io.data.resp)
+
+  // Send read
+  read(io.data.read, 
+        L2DataReadReq(
+          id = UInt(trackerId),
+          way_en = xact_way_en,
+          addr_idx = xact_addr_idx,
+          addr_beat = curr_read_beat),
+        dropPendingBit(io.data.read))
+
+
+  // Handle the response from outer memory
+  io.outer.grant.ready := state === s_busy
+
+  updatePendingCohWhen(ognt_data_done, pending_coh_on_ognt)
+
+  mergeDataOuter(io.outer.grant)
+
+  // Send outer request
+  outerAcquire(
+    Mux(xact_allocate,
+      xact_old_meta.coh.outer.makeAcquire(
+        op_code = xact_op_code,
+        client_xact_id = UInt(0),
+        addr_block = xact_addr_block),
+      BuiltInAcquireBuilder(
+        a_type = xact_iacq.a_type,
+        client_xact_id = UInt(0), // TODO  UInt(trackerId)? done in arbiter
+        addr_block = xact_addr_block,
+        addr_beat = oacq_data_idx, // TODO xact_addr_beat?
+        data = data_buffer(oacq_data_idx),
+        addr_byte = xact_addr_byte,
+        operand_size = xact_op_size,
+        opcode = xact_op_code,
+        wmask = wmask_buffer(oacq_data_idx),
+        alloc = Bool(false))
+        (p.alterPartial({ case TLId => p(OuterTLId)}))),
+    s_busy)
+                                        
+  // Handle incoming releases from clients, which may reduce sharer counts
+  // and/or write back dirty data, and may be unexpected voluntary releases
+  val irel_can_merge = io.irel().conflicts(xact_addr_block) &&
+                         io.irel().isVoluntary() &&
+                         !Vec(s_idle, s_meta_read, s_meta_resp, s_meta_write).contains(state) &&
+                         !all_pending_done &&
+                         !io.outer.grant.fire() &&
+                         !io.inner.grant.fire() &&
+                         !pending_vol_ignt
+
+  innerRelease(irel_can_merge)
+
+  val pending_coh_on_irel = HierarchicalMetadata(
+                              pending_coh.inner.onRelease(io.irel()), // Drop sharer
+                              Mux(io.irel().hasData(), // Dirty writeback
+                                pending_coh.outer.onHit(M_XWR),
+                                pending_coh.outer))
+  updatePendingCohWhen(io.inner.release.fire(), pending_coh_on_irel)
+
+  mergeDataInner(io.inner.release)
+
+  // Track which clients yet need to be probed and make Probe message
+  // If we're probing, we know the tag matches, so if this is the
+  // last level cache, we can use the data without upgrading permissions
+  val skip_outer_acquire = 
+    (if(!isLastLevelCache) xact_old_meta.coh.outer.isHit(xact_op_code)
+     else xact_old_meta.coh.outer.isValid())
+
+  innerProbe(
+    pending_coh.inner.makeProbe(curr_probe_dst, xact_iacq, xact_addr_block),
+    Mux(!skip_outer_acquire, s_outer_acquire, s_busy))
+
+  // Issue a request to the writeback unit
+  wbReq(s_outer_acquire)
 
   // Begin a transaction by getting the current block metadata
   // Defined here because of Chisel default wire demands, used in s_meta_resp
@@ -781,129 +887,25 @@ class CacheAcquireTracker(trackerId: Int)(implicit p: Parameters) extends Acquir
     when (needs_inner_probes) { 
       initializeProbes(coh.inner.full(), xact_iacq.client_id, xact_iacq.requiresSelfProbe())
     }
-    //pending_meta_write := should_update_meta TODO what edge case was this covering?
+    pending_meta_write := should_update_meta //TODO what edge case was this covering?
   }
 
-  // Issue a request to the writeback unit
-  wbReq(s_outer_acquire)
-
-  // Track which clients yet need to be probed and make Probe message
-  // If we're probing, we know the tag matches, so if this is the
-  // last level cache, we can use the data without upgrading permissions
-  val skip_outer_acquire = 
-    (if(!isLastLevelCache) xact_old_meta.coh.outer.isHit(xact_op_code)
-     else xact_old_meta.coh.outer.isValid())
-
-  innerProbe(
-    pending_coh.inner.makeProbe(curr_probe_dst, xact_iacq, xact_addr_block),
-    Mux(!skip_outer_acquire, s_outer_acquire, s_busy))
-
-  // Handle incoming releases from clients, which may reduce sharer counts
-  // and/or write back dirty data, and may be unexpected voluntary releases
-  val irel_can_merge = io.irel().conflicts(xact_addr_block) &&
-                         io.irel().isVoluntary() &&
-                         !Vec(s_idle, s_meta_read, s_meta_resp, s_meta_write).contains(state) &&
+  // Actual transaction processing logic begins here:
+  //
+  // First, take care of accpeting new acquires or secondary misses
+  val iacq_can_merge = acquiresAreMergeable(io.iacq()) &&
+                         state =/= s_idle && state =/= s_meta_write &&
                          !all_pending_done &&
+                         !io.inner.release.fire() &&
                          !io.outer.grant.fire() &&
-                         !io.inner.grant.fire() &&
-                         !pending_vol_ignt
+                         !io.data.resp.valid &&
+                         ignt_q.io.enq.ready && ignt_q.io.deq.valid
 
-  innerRelease(irel_can_merge)
-
-  val pending_coh_on_irel = HierarchicalMetadata(
-                              pending_coh.inner.onRelease(io.irel()), // Drop sharer
-                              Mux(io.irel().hasData(), // Dirty writeback
-                                pending_coh.outer.onHit(M_XWR),
-                                pending_coh.outer))
-  updatePendingCohWhen(io.inner.release.fire(), pending_coh_on_irel)
-
-  mergeDataInner(io.inner.release)
-
-  // Send outer request
-  outerAcquire(
-    Mux(xact_allocate,
-      xact_old_meta.coh.outer.makeAcquire(
-        op_code = xact_op_code,
-        client_xact_id = UInt(0),
-        addr_block = xact_addr_block),
-      BuiltInAcquireBuilder(
-        a_type = xact_iacq.a_type,
-        client_xact_id = UInt(0), // TODO  UInt(trackerId)? done in arbiter
-        addr_block = xact_addr_block,
-        addr_beat = oacq_data_idx, // TODO xact_addr_beat?
-        data = data_buffer(oacq_data_idx),
-        addr_byte = xact_addr_byte,
-        operand_size = xact_op_size,
-        opcode = xact_op_code,
-        wmask = wmask_buffer(oacq_data_idx),
-        alloc = Bool(false))
-        (p.alterPartial({ case TLId => p(OuterTLId)}))),
-    s_busy)
-
-  // Handle the response from outer memory
-  io.outer.grant.ready := state === s_busy
-
-  val pending_coh_on_ognt = HierarchicalMetadata(
-                              ManagerMetadata.onReset,
-                              pending_coh.outer.onGrant(io.outer.grant.bits, xact_op_code))
-  updatePendingCohWhen(ognt_data_done, pending_coh_on_ognt)
-
-  mergeDataOuter(io.outer.grant)
-
-  // Send read
-  read(io.data.read, 
-        L2DataReadReq(
-          id = UInt(trackerId),
-          way_en = xact_way_en,
-          addr_idx = xact_addr_idx,
-          addr_beat = curr_read_beat),
-        dropPendingBit(io.data.read))
-
-  // Get resp
-  pending_resps := (pending_resps & dropPendingBitInternal(io.data.resp)) |
-                     addPendingBitInternal(io.data.read)
-
-  mergeDataInternal(io.data.resp)
-
-  // Do write
-  write(io.data.write, 
-        L2DataWriteReq(
-          id = UInt(trackerId),
-          way_en = xact_way_en,
-          addr_idx = xact_addr_idx,
-          addr_beat = curr_write_beat,
-          wmask = ~UInt(0, io.data.write.bits.wmask.getWidth),
-          data = data_buffer(curr_write_beat)),
-        dropPendingBit(io.data.write))
-
-  // Acknowledge or respond with data
-  val ignt_from_iacq = pending_coh.inner.makeGrant(
-                              sec = ignt_q.io.deq.bits,
-                              manager_xact_id = UInt(trackerId), 
-                              data = Mux(xact_iacq.isAtomic(),
-                                       amo_result,
-                                       data_buffer(ignt_data_idx)))
-  innerGrant(ignt_from_iacq, addPendingBitInternal(io.data.resp))
-
-  val pending_coh_on_ignt = HierarchicalMetadata(
-                              pending_coh.inner.onGrant(io.ignt()),
-                              Mux(ognt_data_done,
-                                pending_coh_on_ognt.outer,
-                                pending_coh.outer))
-  updatePendingCohWhen(io.inner.grant.fire() && io.ignt().last(), pending_coh_on_ignt)
-
-  // We must wait for as many Finishes as we sent Grants
-  io.inner.finish.ready := state === s_busy
-
-  // Wait for everything to quiesce
-  when(state === s_busy && all_pending_done) {
-    wmask_buffer.foreach { w => w := UInt(0) } // This is the only reg that must be clear in s_idle
-    state := Mux(pending_meta_write, s_meta_write, s_idle)
+  accept(iacq_can_merge, Bool(true), s_meta_read)
+  when(state === s_idle && io.inner.acquire.valid && io.alloc.iacq) {
+    amo_result := UInt(0)
+    pending_meta_write := Bool(false)
   }
-
-  // End a transaction by updating the block metadata
-  metaWrite(L2Metadata(xact_addr_tag, pending_coh), s_idle)
-                                        
 }
 
 class L2WritebackReq(implicit p: Parameters) extends L2Metadata()(p) with HasL2Id {

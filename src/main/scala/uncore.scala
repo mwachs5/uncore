@@ -34,6 +34,7 @@ trait HasCoherenceAgentParameters {
   val innerWriteMaskBits = innerTLParams.writeMaskBits
   val innerBeatAddrBits = log2Up(innerDataBeats)
   val innerByteAddrBits = log2Up(innerDataBits/8)
+  val innerNCachingClients = innerTLParams.nCachingClients
   val maxManagerXacts = innerTLParams.maxManagerXacts
   require(outerDataBeats == innerDataBeats) //TODO: fix all xact_data Vecs to remove this requirement
 }
