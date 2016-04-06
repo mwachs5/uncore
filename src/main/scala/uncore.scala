@@ -141,7 +141,8 @@ class HierarchicalTLIO(implicit p: Parameters) extends CoherenceAgentBundle()(p)
   with HasInnerTLIO
   with HasCachedOuterTLIO
 
-abstract class HierarchicalCoherenceAgent(implicit p: Parameters) extends CoherenceAgent()(p) {
+abstract class HierarchicalCoherenceAgent(implicit p: Parameters) extends CoherenceAgent()(p)
+    with HasCoherenceAgentWiringHelpers {
   val io = new HierarchicalTLIO
   def innerTL = io.inner
   def outerTL = io.outer
@@ -186,12 +187,14 @@ trait HasPendingBits extends HasDataBeatCounters {
   def addPendingBitWhenBeatHasDataAndAllocs(in: DecoupledIO[AcquireFromSrc]): UInt =
     addPendingBitWhenBeatHasData(in, in.bits.allocate())
 
-  def addPendingBitWhenBeatIsGetOrAtomic(in: DecoupledIO[AcquireFromSrc]): UInt = {
+  def addPendingBitWhenBeatNeedsRead(in: DecoupledIO[AcquireFromSrc], inc: Bool = Bool(true)): UInt = {
     val a = in.bits
-    val isGetOrAtomic = a.isBuiltInType() &&
-      (Vec(Acquire.getType, Acquire.getBlockType, Acquire.putAtomicType).contains(a.a_type))
-    addPendingBitWhenBeat(in.fire() && isGetOrAtomic, a)
+    val needs_read = (a.isGet() || a.isAtomic() || a.hasPartialWritemask()) || inc
+    addPendingBitWhenBeat(in.fire() && needs_read, a)
   }
+
+  def addPendingBitWhenBeatHasPartialWritemask(in: DecoupledIO[AcquireFromSrc]): UInt =
+    addPendingBitWhenBeat(in.fire() && in.bits.hasPartialWritemask(), in.bits)
 
   def addPendingBitsFromAcquire(a: SecondaryMissInfo): UInt =
     Mux(a.hasMultibeatData(), Fill(a.tlDataBeats, UInt(1, 1)), UIntToOH(a.addr_beat))
@@ -210,6 +213,18 @@ trait HasPendingBits extends HasDataBeatCounters {
 
   def addPendingBitAtSrcWhenVoluntary[T <: HasId with MightBeVoluntary](in: DecoupledIO[T]): UInt =
     addPendingBitWhenId(in.fire() && in.bits.isVoluntary(), in.bits)
+
+  def addOtherBits(en: Bool, nBits: Int): UInt =
+    Mux(en, Cat(Fill(nBits - 1, UInt(1, 1)), UInt(0, 1)), UInt(0, nBits))
+
+  def addPendingBitsOnFirstBeat(in: DecoupledIO[Acquire]): UInt =
+    addOtherBits(in.fire() &&
+                 in.bits.hasMultibeatData() &&
+                 in.bits.addr_beat === UInt(0),
+                 in.bits.tlDataBeats)
+
+  def dropPendingBitsOnFirstBeat(in: DecoupledIO[Acquire]): UInt =
+    ~addPendingBitsOnFirstBeat(in)
 }
 
 abstract class XactTracker(implicit p: Parameters) extends CoherenceAgentModule()(p)

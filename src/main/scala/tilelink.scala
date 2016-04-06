@@ -182,6 +182,10 @@ trait HasAcquireUnion extends HasTileLinkParameters {
   }
   /** Full, beat-sized writemask */
   def full_wmask(dummy: Int = 0) = FillInterleaved(8, wmask())
+
+  /** Is this message a built-in read message */
+  def hasPartialWritemask(dummy: Int = 0): Bool = wmask() =/= Acquire.fullWriteMask
+
 }
 
 trait HasAcquireType extends HasTileLinkParameters {
@@ -202,6 +206,12 @@ trait HasAcquireType extends HasTileLinkParameters {
   /** Is this message a built-in prefetch message */
   def isPrefetch(dummy: Int = 0): Bool = isBuiltInType() &&
                                            (is(Acquire.getPrefetchType) || is(Acquire.putPrefetchType))
+
+  /** Is this message a built-in atomic message */
+  def isAtomic(dummy: Int = 0): Bool = isBuiltInType() && is(Acquire.putAtomicType)
+
+  /** Is this message a built-in read message */
+  def isGet(dummy: Int = 0): Bool = isBuiltInType() && (is(Acquire.getType) || is(Acquire.getBlockType))
 
   /** Does this message contain data? Assumes that no custom message types have data. */
   def hasData(dummy: Int = 0): Bool = isBuiltInType() && Acquire.typesWithData.contains(a_type)
