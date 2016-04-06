@@ -995,7 +995,8 @@ class L2WritebackUnit(trackerId: Int)(implicit p: Parameters) extends L2XactTrac
   // and/or write back dirty data
   val irel_can_merge = io.irel().conflicts(xact_addr_block) &&
                          io.irel().isVoluntary() &&
-                         !pending_vol_ignt
+                         !pending_vol_ignt &&
+                         (state =/= s_idle)
 
   val irel_same_xact = io.irel().conflicts(xact_addr_block) &&
                          !io.irel().isVoluntary() &&
