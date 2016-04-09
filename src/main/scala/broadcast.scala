@@ -67,21 +67,22 @@ class BufferedBroadcastVoluntaryReleaseTracker(trackerId: Int)(implicit p: Param
   pinAllReadyValidLow(io)
 
   val inner_coh = ManagerMetadata.onReset
+  val outer_coh = ClientMetadata.onReset
 
-  route(io.iacq().conflicts(xact_vol_irel))
+  route()
 
   // Initialize and accept pending Release beats
   accept(s_busy)
 
   //TODO: Use io.outer.release instead?
-  write(io.outer.acquire, 
+  writeData(io.outer.acquire, 
         PutBlock( 
              client_xact_id = UInt(0),
              addr_block = xact_addr_block,
              addr_beat = curr_write_beat,
              data = data_buffer(curr_write_beat))
            (p.alterPartial({ case TLId => outerTLId })),
-        dropPendingBitWhenBeatHasData(io.outer.acquire))
+        dropPendingBitWhenBeatHasData _)
 
   acknowledge(io.outer.grant.valid, io.inner.grant.ready)
 
@@ -99,11 +100,12 @@ class BufferedBroadcastAcquireTracker(trackerId: Int)(implicit p: Parameters)
   pinAllReadyValidLow(io)
 
   val inner_coh = ManagerMetadata.onReset
+  val outer_coh = ClientMetadata.onReset
   val alwaysWriteFullBeat = false
   val nSecondaryMisses = 0
 
-  // Setup IOs are used for routing in the parent
-  route(io.iacq().conflicts(xact_addr_block), io.irel().conflicts(xact_addr_block))
+  // Setup IOs used for routing in the parent
+  route()
 
   accept(Bool(false), Bool(false), s_inner_probe)
   when(state === s_idle && io.inner.acquire.valid && io.alloc.iacq) {

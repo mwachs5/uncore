@@ -45,17 +45,17 @@ trait HasBlockAddressBuffer extends HasCoherenceAgentParameters {
 
 
 trait HasAcquireMetadataBuffer extends HasBlockAddressBuffer {
-  lazy val xact_allocate = Reg{ Bool() }
-  lazy val xact_amo_shift_bytes =  Reg{ UInt() }
-  lazy val xact_op_code =  Reg{ UInt() }
-  lazy val xact_addr_byte =  Reg{ UInt() }
-  lazy val xact_op_size =  Reg{ UInt() }
-  val xact_addr_beat: UInt
-  val xact_iacq: SecondaryMissInfo
+  val xact_allocate = Reg{ Bool() }
+  val xact_amo_shift_bytes =  Reg{ UInt() }
+  val xact_op_code =  Reg{ UInt() }
+  val xact_addr_byte =  Reg{ UInt() }
+  val xact_op_size =  Reg{ UInt() }
+  def xact_addr_beat: UInt
+  def xact_iacq: SecondaryMissInfo
 }
 
-trait HasReleaseMetadataBuffer extends HasBlockAddressBuffer {
-  val io: HierarchicalXactTrackerIO
+trait HasVoluntaryReleaseMetadataBuffer extends HasBlockAddressBuffer with HasPendingBits {
+  def io: HierarchicalXactTrackerIO
 
   lazy val xact_vol_ir_r_type = Reg{ io.irel().r_type }
   lazy val xact_vol_ir_src = Reg{ io.irel().client_id }
@@ -68,22 +68,83 @@ trait HasReleaseMetadataBuffer extends HasBlockAddressBuffer {
                         client_xact_id = xact_vol_ir_client_xact_id,
                         addr_block = xact_addr_block)
                         (p.alterPartial({ case TLId => p(InnerTLId) }))
+}
+
+trait AcceptsVoluntaryReleases extends HasVoluntaryReleaseMetadataBuffer {
+  val pending_irel_data = Reg(init=Bits(0, width = innerDataBeats))
+
+  lazy val pending_vol_ignt = {
+    connectTwoWayBeatCounter(
+      up = io.inner.release,
+      down = io.inner.grant,
+      trackUp = (r: Release) => {
+        Mux(state === s_idle, io.alloc.irel, io.matches.irel) &&
+        r.isVoluntary() &&
+        r.requiresAck()
+      },
+      trackDown = (g: Grant) => (state =/= s_idle) && g.isVoluntary())._1
+  }
+
+  def innerRelease(irel_can_merge: Bool) {
+    val irel_same_xact = io.irel().conflicts(xact_addr_block) &&
+                           !io.irel().isVoluntary() &&
+                           state === s_inner_probe 
+
+    io.inner.release.ready := irel_can_merge || irel_same_xact
+
+    when(io.inner.release.fire() && !irel_same_xact) {
+      xact_vol_ir_r_type := io.irel().r_type
+      xact_vol_ir_src := io.irel().client_id
+      xact_vol_ir_client_xact_id := io.irel().client_xact_id
+      pending_irel_data := Mux(io.irel().hasMultibeatData(),
+                              dropPendingBitWhenBeatHasData(io.inner.release),
+                              UInt(0))
+    }
+    pending_irel_data := (pending_irel_data & dropPendingBitWhenBeatHasData(io.inner.release))
+  }
 
 }
 
-trait TriggersInnerProbes extends HasBlockAddressBuffer
-    with HasPendingBits {
-  val io: HierarchicalXactTrackerIO
+trait EmitsVoluntaryReleases extends HasVoluntaryReleaseMetadataBuffer {
+  val pending_orel = Reg(init=Bool(false))
+  val pending_orel_data = Reg(init=Bits(0, width = innerDataBeats))
 
-  lazy val pending_iprbs = Reg(UInt(width = innerNCachingClients))
-  lazy val curr_probe_dst = PriorityEncoder(pending_iprbs)
-
-  lazy val pending_irels =
+  lazy val (pending_vol_ognt,
+            orel_data_idx,
+            orel_data_done,
+            vol_ognt_data_idx,
+            vol_ognt_data_done) = {
     connectTwoWayBeatCounter(
-      max = innerNCachingClients,
+      up = io.outer.release,
+      down = io.outer.grant,
+      trackUp = (r: Release) => r.isVoluntary() && r.requiresAck(),
+      trackDown = (g: Grant) => g.isVoluntary())
+  }
+
+  def outerRelease(rel: Release, addPendingBit: UInt) {
+    pending_orel_data := (pending_orel_data & dropPendingBitWhenBeatHasData(io.outer.release)) |
+                          addPendingBitWhenBeatHasData(io.inner.release) |
+                          addPendingBit
+    io.outer.release.valid := state === s_busy &&
+                                ((!rel.hasData() && pending_orel) || pending_orel_data(orel_data_idx))
+    io.outer.release.bits := rel
+    when(orel_data_done) { pending_orel := Bool(false) }
+  }
+}
+
+trait TriggersInnerProbes extends HasBlockAddressBuffer with HasPendingBits {
+  def io: HierarchicalXactTrackerIO
+
+  val pending_iprbs = Reg(UInt(width = innerNCachingClients))
+  val curr_probe_dst = PriorityEncoder(pending_iprbs)
+
+  lazy val pending_irels = {
+    connectTwoWayBeatCounter(
       up = io.inner.probe,
       down = io.inner.release,
-      trackDown = (r: Release) => !r.isVoluntary())._1
+      max = innerNCachingClients,
+      trackDown = (r: Release) => (state =/= s_idle) && !r.isVoluntary())._1
+  }
 
   def initializeProbes(full_sharers: UInt, client_id: UInt, self_probe: Bool) {
     val mask_self = Mux(self_probe,
@@ -104,27 +165,53 @@ trait TriggersInnerProbes extends HasBlockAddressBuffer
   }
 }
 
-  
-abstract class VoluntaryReleaseTracker(val trackerId: Int)(implicit p: Parameters) extends XactTracker()(p)
-    with HasReleaseMetadataBuffer
-    with HasDataBuffer {
-  val io: HierarchicalXactTrackerIO
-  val inner_coh: ManagerMetadata
+trait DoesDataReads extends HasCoherenceAgentParameters {
+  val pending_reads = Reg(init=Bits(0, width = innerDataBeats))
+  val pending_resps = Reg(init=Bits(0, width = innerDataBeats))
+  val curr_read_beat = PriorityEncoder(pending_reads)
 
-  lazy val pending_irel_beats = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  lazy val pending_writes = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  lazy val pending_ignt = Reg(init=Bool(false))
+  def readData[T <: Data](port: DecoupledIO[T], packet: T, drop: DecoupledIO[T] => UInt): Unit
+}
+
+trait DoesDataWrites extends HasCoherenceAgentParameters {
+  val pending_writes = Reg(init=Bits(0, width = innerDataBeats))
+  val curr_write_beat = PriorityEncoder(pending_writes)
+
+  def writeData[T <: Data](port: DecoupledIO[T], packet: T, drop: DecoupledIO[T] => UInt): Unit
+}
+
+trait RoutesInParent extends HasBlockAddressBuffer {
+  def io: HierarchicalXactTrackerIO
+  type AddrComparison = HasCacheBlockAddress => Bool
+  def exactAddrMatch(a: HasCacheBlockAddress): Bool = a.conflicts(xact_addr_block)
+  def route(iacqMatches: AddrComparison = exactAddrMatch,
+            irelMatches: AddrComparison = exactAddrMatch,
+            oprbMatches: AddrComparison = exactAddrMatch) {
+    io.matches.iacq := (state =/= s_idle) && iacqMatches(io.iacq())
+    io.matches.irel := (state =/= s_idle) && irelMatches(io.irel())
+    io.matches.oprb := (state =/= s_idle) && oprbMatches(io.oprb())
+  }
+}
+
+abstract class VoluntaryReleaseTracker(val trackerId: Int)(implicit p: Parameters) extends XactTracker()(p)
+    with AcceptsVoluntaryReleases
+    with EmitsVoluntaryReleases
+    with HasDataBuffer
+    with DoesDataWrites
+    with RoutesInParent {
+  def io: HierarchicalXactTrackerIO
+  def inner_coh: ManagerMetadata
+
   lazy val all_pending_done =
     !(pending_writes.orR ||
-      pending_irel_beats.orR ||
-      pending_ignt)
-
-  lazy val curr_write_beat = PriorityEncoder(pending_writes)
+      pending_irel_data.orR ||
+      pending_vol_ignt ||
+      pending_vol_ognt) 
 
   // Accept a voluntary Release (and any further beats of data)
   def accept(next_state: UInt) {
-    pending_irel_beats := (pending_irel_beats & dropPendingBitWhenBeatHasData(io.inner.release))
-      io.inner.release.ready := ((state === s_idle) && io.irel().isVoluntary()) || pending_irel_beats.orR
+    pending_irel_data := (pending_irel_data & dropPendingBitWhenBeatHasData(io.inner.release))
+    io.inner.release.ready := ((state === s_idle) && io.irel().isVoluntary()) || pending_irel_data.orR
     when(io.inner.release.fire()) { data_buffer(io.irel().addr_beat) := io.irel().data }
 
     when(state === s_idle && io.inner.release.valid && io.alloc.irel) {
@@ -132,25 +219,17 @@ abstract class VoluntaryReleaseTracker(val trackerId: Int)(implicit p: Parameter
       xact_vol_ir_r_type := io.irel().r_type
       xact_vol_ir_src := io.irel().client_id
       xact_vol_ir_client_xact_id := io.irel().client_xact_id
-      pending_irel_beats := Mux(io.irel().hasMultibeatData(),
+      pending_irel_data := Mux(io.irel().hasMultibeatData(),
                               dropPendingBitWhenBeatHasData(io.inner.release),
                               UInt(0))
       pending_writes := addPendingBitWhenBeatHasData(io.inner.release)
-      pending_ignt := io.irel().requiresAck()
       state := next_state
     }
   }
 
-  // These IOs are used for routing in the parent
-  def route(iacqMatches: Bool) {
-    io.matches.iacq := (state =/= s_idle) && iacqMatches
-    io.matches.irel := (state =/= s_idle) && io.irel().conflicts(xact_vol_irel)
-    io.matches.oprb := (state =/= s_idle) && io.oprb().conflicts(xact_vol_irel)
-  }
-
    // Write the voluntarily written back data
-  def write[T <: Data](port: DecoupledIO[T], packet: T, drop: UInt) {
-    pending_writes := (pending_writes & drop) |
+  def writeData[T <: Data](port: DecoupledIO[T], packet: T, drop: DecoupledIO[T] => UInt) {
+    pending_writes := (pending_writes & drop(port)) |
                         addPendingBitWhenBeatHasData(io.inner.release)
     port.valid := state === s_busy && pending_writes.orR
     port.bits := packet
@@ -158,22 +237,24 @@ abstract class VoluntaryReleaseTracker(val trackerId: Int)(implicit p: Parameter
 
   // Send an acknowledgement
   def acknowledge(committed: Bool, inner_ready: Bool) {
-    io.inner.grant.valid := state === s_busy && pending_ignt && !pending_irel_beats.orR && committed
+    io.inner.grant.valid := state === s_busy && pending_vol_ignt && !pending_irel_data.orR && committed
     io.inner.grant.bits := inner_coh.makeGrant(xact_vol_irel)
-    when(io.inner.grant.fire()) { pending_ignt := Bool(false) }
     io.outer.grant.ready := state === s_busy && inner_ready
   }
 }
 
 abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extends XactTracker()(p)
     with HasAcquireMetadataBuffer
-    with HasReleaseMetadataBuffer
+    with AcceptsVoluntaryReleases
     with HasByteWriteMaskBuffer
-    with TriggersInnerProbes {
-  val io: HierarchicalXactTrackerIO
-  val inner_coh: ManagerMetadata
-  val nSecondaryMisses: Int
-  val alwaysWriteFullBeat: Boolean
+    with TriggersInnerProbes
+    with DoesDataReads 
+    with DoesDataWrites
+    with RoutesInParent {
+  def io: HierarchicalXactTrackerIO
+  def nSecondaryMisses: Int
+  def alwaysWriteFullBeat: Boolean
+  def inner_coh: ManagerMetadata
 
   // Miss queue holds transaction metadata used to make grants
   lazy val ignt_q = Module(new Queue(
@@ -181,23 +262,16 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
         1 + nSecondaryMisses))
   lazy val xact_iacq = ignt_q.io.deq.bits
   lazy val xact_addr_beat = ignt_q.io.deq.bits.addr_beat
+  lazy val pending_ignt = ignt_q.io.count > UInt(0)
 
   // Counters and scoreboard tracking progress made on processing this transaction
-  lazy val pending_vol_ignt =
-    connectTwoWayBeatCounter(
-      max = 1,
-      up = io.inner.release,
-      down = io.inner.grant,
-      trackUp = (r: Release) => r.isVoluntary(),
-      trackDown = (g: Grant) => g.isVoluntary())._1
 
   lazy val (pending_ognt,
-            oacq_data_idx,
-            oacq_data_done,
-            ognt_data_idx,
-            ognt_data_done) =
+        oacq_data_idx,
+        oacq_data_done,
+        ognt_data_idx,
+        ognt_data_done) =
     connectTwoWayBeatCounter(
-      max = 1,
       up = io.outer.acquire,
       down = io.outer.grant,
       beat = xact_addr_beat)
@@ -209,47 +283,34 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
 
   lazy val pending_ifins =
     connectTwoWayBeatCounter(
-      max = nSecondaryMisses,
       up = io.inner.grant,
       down = io.inner.finish,
+      max = nSecondaryMisses,
       trackUp = (g: Grant) => g.requiresAck())._1
 
-  lazy val pending_puts = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  lazy val pending_reads = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  lazy val pending_irel_beats = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  lazy val pending_writes = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  lazy val pending_resps = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-  lazy val ignt_data_ready = Reg(init=Bits(0, width = io.inner.tlDataBeats))
-
-  lazy val curr_read_beat = PriorityEncoder(pending_reads)
-  lazy val curr_write_beat = PriorityEncoder(pending_writes)
+  val pending_put_data = Reg(init=Bits(0, width = innerDataBeats))
+  val ignt_data_ready = Reg(init=Bits(0, width = innerDataBeats))
 
   // Used to decide when to escape from s_busy
   lazy val all_pending_done =
     !(pending_reads.orR ||
       pending_writes.orR ||
       pending_resps.orR ||
-      pending_puts.orR ||
-      pending_irel_beats.orR ||
+      pending_put_data.orR ||
+      pending_irel_data.orR ||
       pending_ognt ||
-      ignt_q.io.count > UInt(0) ||
+      pending_ignt ||
       pending_vol_ignt ||
-      //pending_meta_write || // Has own state: s_meta_write
       pending_ifins)
+      //pending_meta_write has own state: s_meta_write
 
-  // These IOs are used for routing in the parent
-  def route(iacqMatches: Bool, irelMatches: Bool) {
-    io.matches.iacq := (state =/= s_idle) && iacqMatches
-    io.matches.irel := (state =/= s_idle) && irelMatches
-    io.matches.oprb := (state =/= s_idle) && io.oprb().conflicts(xact_addr_block)
-  }
 
   def accept(iacq_can_merge: Bool, can_alloc: Bool, next_state: UInt) {
     val iacq_same_xact = 
       xact_iacq.client_xact_id === io.iacq().client_xact_id &&
       xact_iacq.hasMultibeatData() &&
       ignt_q.io.deq.valid && // i.e. state =/= s_idle
-      pending_puts(io.iacq().addr_beat)
+      pending_put_data(io.iacq().addr_beat)
 
     val iacq_accepted = io.inner.acquire.fire() &&
                           (io.alloc.iacq || iacq_can_merge || iacq_same_xact)
@@ -269,7 +330,7 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
     ignt_q.io.enq.bits := io.iacq()
 
     // Track whether any beats are missing from a PutBlock
-    pending_puts := (pending_puts &
+    pending_put_data := (pending_put_data &
         dropPendingBitWhenBeatHasData(io.inner.acquire)) |
         addPendingBitsOnFirstBeat(io.inner.acquire)
 
@@ -282,7 +343,7 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
       xact_addr_byte := io.iacq().addr_byte()
       xact_op_size := io.iacq().op_size()
       // Make sure to collect all data from a PutBlock
-      pending_puts := Mux(
+      pending_put_data := Mux(
         io.iacq().isBuiltInType(Acquire.putBlockType),
         dropPendingBitWhenBeatHasData(io.inner.acquire),
         UInt(0))
@@ -298,27 +359,6 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
     }
   }
 
-  def innerRelease(irel_can_merge: Bool) {
-    val irel_same_xact = io.irel().conflicts(xact_addr_block) &&
-                           !io.irel().isVoluntary() &&
-                           state === s_inner_probe 
-
-    val irel_accepted = io.inner.release.fire() &&
-                           (io.alloc.irel || irel_can_merge || irel_same_xact)
-
-    io.inner.release.ready := irel_can_merge || irel_same_xact
-
-    when(io.inner.release.fire() && irel_can_merge) {
-      xact_vol_ir_r_type := io.irel().r_type
-      xact_vol_ir_src := io.irel().client_id
-      xact_vol_ir_client_xact_id := io.irel().client_xact_id
-      pending_irel_beats := Mux(io.irel().hasMultibeatData(),
-                              dropPendingBitWhenBeatHasData(io.inner.release),
-                              UInt(0))
-    }
-    pending_irel_beats := (pending_irel_beats & dropPendingBitWhenBeatHasData(io.inner.release))
-  }
-
   // Handle misses or coherence permission upgrades by initiating a new transaction in the outer memory:
   //
   // If we're allocating in this cache, we can use the current metadata
@@ -327,7 +367,7 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
 
   def outerAcquire(acq: Acquire, next_state: UInt) {
     io.outer.acquire.valid := state === s_outer_acquire &&
-                              (xact_allocate || !pending_puts(oacq_data_idx))
+                              (xact_allocate || !pending_put_data(oacq_data_idx))
     io.outer.acquire.bits := acq
 
     when(state === s_outer_acquire && oacq_data_done) { state := next_state }
@@ -337,9 +377,9 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
   // We read from the the cache at this level if data wasn't written back or refilled.
   // We may still merge further Gets, requiring further beats to be read.
   // If ECC requires a full writemask, we'll read out data on partial writes as well.
-  def read[T <: Data](port: DecoupledIO[T], packet: T, drop: UInt) {
+  def readData[T <: Data](port: DecoupledIO[T], packet: T, drop: DecoupledIO[T] => UInt) {
     pending_reads := (pending_reads &
-                         drop &
+                         drop(port) &
                          dropPendingBitWhenBeatHasData(io.inner.release) &
                          dropPendingBitWhenBeatHasData(io.outer.grant)) |
                        addPendingBitWhenBeatNeedsRead(io.inner.acquire, Bool(alwaysWriteFullBeat))
@@ -349,9 +389,9 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
 
   // We write data to the cache at this level if it was Put here with allocate flag,
   // written back dirty, or refilled from outer memory.
-  def write[T <: Data](port: DecoupledIO[T], packet: T, drop: UInt) {
+  def writeData[T <: Data](port: DecoupledIO[T], packet: T, drop: DecoupledIO[T] => UInt) {
     pending_writes := (pending_writes &
-                        drop &
+                        drop(port) &
                         dropPendingBitsOnFirstBeat(io.inner.acquire)) |
                         addPendingBitWhenBeatHasDataAndAllocs(io.inner.acquire) |
                         addPendingBitWhenBeatHasData(io.inner.release) |
@@ -374,7 +414,7 @@ abstract class AcquireTracker(val trackerId: Int)(implicit p: Parameters) extend
     // received and committed to the data array or outer memory
     val ignt_ack_ready = !(state === s_idle ||
                            state === s_meta_read ||
-                           pending_puts.orR ||
+                           pending_put_data.orR ||
                            pending_writes.orR ||
                            pending_ognt)
 

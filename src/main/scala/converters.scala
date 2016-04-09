@@ -292,18 +292,16 @@ trait HasDataBeatCounters {
     *         up's done, down's count, down's done
     */
   def connectTwoWayBeatCounter[T <: TileLinkChannel, S <: TileLinkChannel](
-      max: Int,
       up: DecoupledIO[T],
       down: DecoupledIO[S],
+      max: Int = 1,
       beat: UInt = UInt(0),
       trackUp: T => Bool = (t: T) => Bool(true),
       trackDown: S => Bool = (s: S) => Bool(true)): (Bool, UInt, Bool, UInt, Bool) = {
-    val (up_idx, up_done) = connectDataBeatCounter(up.fire(), up.bits, beat)
-    val (down_idx, down_done) = connectDataBeatCounter(down.fire(), down.bits, beat)
-    val do_inc = up_done && trackUp(up.bits)
-    val do_dec = down_done && trackDown(down.bits)
-    val cnt = TwoWayCounter(do_inc, do_dec, max)
-    (cnt > UInt(0), up_idx, up_done, down_idx, down_done)
+    val (up_idx, up_done) = connectDataBeatCounter(up.fire() && trackUp(up.bits), up.bits, beat)
+    val (dn_idx, dn_done) = connectDataBeatCounter(down.fire() && trackDown(down.bits), down.bits, beat)
+    val cnt = TwoWayCounter(up_done, dn_done, max)
+    (cnt > UInt(0), up_idx, up_done, dn_idx, dn_done)
   }
 }
 
