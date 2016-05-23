@@ -41,9 +41,6 @@ class L2BroadcastHub(implicit p: Parameters) extends HierarchicalCoherenceAgent(
   doOutputArbitration(io.inner.probe, trackerList.map(_.io.inner.probe))
 
   doOutputArbitration(io.inner.grant, trackerList.map(_.io.inner.grant))
-  // Note that we bypass the Grant data subbundles
-  //io.inner.grant.bits.data := io.outer.grant.bits.data
-  //io.inner.grant.bits.addr_beat := io.outer.grant.bits.addr_beat
 
   doInputRouting(io.inner.finish, trackerList.map(_.io.inner.finish))
 
@@ -60,66 +57,96 @@ class BroadcastXactTracker(implicit p: Parameters) extends XactTracker()(p) {
   pinAllReadyValidLow(io)
 }
 
-class BufferedBroadcastVoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters)
-    extends VoluntaryReleaseTracker(trackerId)(p)
-    with HasDataBuffer {
+trait BroadcastsToAllClients extends HasCoherenceAgentParameters {
+  val inner_coh = ManagerMetadata.onReset
+  val outer_coh = ClientMetadata.onReset
+  def full_representation = ~UInt(0, width = innerNCachingClients)
+}
+
+abstract class BroadcastVoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters)
+    extends VoluntaryReleaseTracker(trackerId)(p) 
+    with EmitsVoluntaryReleases
+    with BroadcastsToAllClients {
   val io = new HierarchicalXactTrackerIO
   pinAllReadyValidLow(io)
 
-  val inner_coh = ManagerMetadata.onReset
-  val outer_coh = ClientMetadata.onReset
-
-  route()
-
-  // Initialize and accept pending Release beats
-  accept(s_busy)
-
-  //TODO: Use io.outer.release instead?
-  writeData(io.outer.acquire, 
-        PutBlock( 
-             client_xact_id = UInt(0),
-             addr_block = xact_addr_block,
-             addr_beat = curr_write_beat,
-             data = data_buffer(curr_write_beat))
-           (p.alterPartial({ case TLId => outerTLId })),
-        dropPendingBitWhenBeatHasData _)
-
-  acknowledge(io.outer.grant.valid, io.inner.grant.ready)
-
-  when(state === s_busy && all_pending_done) { state := s_idle }
-
   // Checks for illegal behavior
-  assert(!(state === s_idle && io.inner.release.fire() && !io.irel().isVoluntary()),
+  assert(!(state === s_idle && io.inner.release.fire() && io.alloc.irel && !io.irel().isVoluntary()),
     "VoluntaryReleaseTracker accepted Release that wasn't voluntary!")
 }
 
-class BufferedBroadcastAcquireTracker(trackerId: Int)(implicit p: Parameters)
-    extends AcquireTracker(trackerId)(p)
-    with HasByteWriteMaskBuffer {
+abstract class BroadcastAcquireTracker(trackerId: Int)(implicit p: Parameters)
+    extends AcquireTracker(trackerId)(p) 
+    with EmitsVoluntaryReleases
+    with BroadcastsToAllClients {
   val io = new HierarchicalXactTrackerIO
   pinAllReadyValidLow(io)
 
-  val inner_coh = ManagerMetadata.onReset
-  val outer_coh = ClientMetadata.onReset
   val alwaysWriteFullBeat = false
-  val nSecondaryMisses = 0
+  val nSecondaryMisses = 1
+  def iacq_can_merge = Bool(false)
+
+  // Checks for illegal behavior
+  // TODO: this could be allowed, but is a useful check against allocation gone wild
+  assert(!(state === s_idle && io.inner.acquire.fire() && io.alloc.iacq &&
+    io.iacq().hasMultibeatData() && !io.iacq().first()),
+    "AcquireTracker initialized with a tail data beat.")
+
+  assert(!(state =/= s_idle && pending_ignt && xact_iacq.isPrefetch()),
+    "Broadcast Hub does not support Prefetches.")
+
+  assert(!(state =/= s_idle && pending_ignt && xact_iacq.isAtomic()),
+    "Broadcast Hub does not support PutAtomics.")
+}
+
+class BufferedBroadcastVoluntaryReleaseTracker(trackerId: Int)(implicit p: Parameters)
+    extends BroadcastVoluntaryReleaseTracker(trackerId)(p)
+    with HasDataBuffer {
+
+  routeInParent()
+
+  // Start transaction by accepting inner release
+  innerRelease(block_vol_ignt = pending_orel || pending_vol_ognt)
+
+  io.inner.release.ready := state === s_idle || irel_can_merge || irel_same_xact
+
+  when(irel_is_allocating) { pending_orel := io.irel().hasData() }
+
+  when(io.inner.release.fire()) { data_buffer(io.irel().addr_beat) := io.irel().data }
+
+  // Dispatch outer release
+  outerRelease(outer_coh.onHit(M_XWR), data_buffer(orel_data_idx))
+
+  quiesce()
+}
+
+class BufferedBroadcastAcquireTracker(trackerId: Int)(implicit p: Parameters)
+    extends BroadcastAcquireTracker(trackerId)(p)
+    with HasByteWriteMaskBuffer {
 
   // Setup IOs used for routing in the parent
-  route()
+  routeInParent()
 
-  accept(Bool(false), Bool(false), s_inner_probe)
-  when(state === s_idle && io.inner.acquire.valid && io.alloc.iacq) {
-    //initializeProbes(~inner_coh.full(), xact_iacq.client_id, xact_iacq.requiresSelfProbe())
-  }
+  // First, take care of accpeting new acquires or secondary misses
+  // Handling of primary and secondary misses' data and write mask merging
+  innerAcquire(
+    can_alloc = Bool(false),
+    next = s_inner_probe)
 
-  //val curr_probe_dst = PriorityEncoder(pending_iprbs)
-  //innerProbe(
-  //  inner_coh.makeProbe(UInt(0), xact_iacq, xact_addr_block),
-  //  s_outer_acquire)
+  io.inner.acquire.ready := state === s_idle || iacq_can_merge || iacq_same_xact 
+
+  // Track which clients yet need to be probed and make Probe message
+  // If a writeback occurs, we can forward its data via the buffer,
+  // and skip having to go outwards
+  val skip_outer_acquire = pending_ignt_data.andR
+
+  innerProbe(
+    inner_coh.makeProbe(curr_probe_dst, xact_iacq, xact_addr_block),
+    Mux(!skip_outer_acquire, s_outer_acquire, s_busy))
 
   // Handle incoming releases from clients, which may reduce sharer counts
   // and/or write back dirty data, and may be unexpected voluntary releases
-  val irel_can_merge = io.irel().conflicts(xact_addr_block) &&
+  def irel_can_merge = io.irel().conflicts(xact_addr_block) &&
                          io.irel().isVoluntary() &&
                          !Vec(s_idle, s_meta_write).contains(state) &&
                          !all_pending_done &&
@@ -127,45 +154,39 @@ class BufferedBroadcastAcquireTracker(trackerId: Int)(implicit p: Parameters)
                          !io.inner.grant.fire() &&
                          !pending_vol_ignt
 
-  innerRelease(irel_can_merge)
+  innerRelease(block_vol_ignt = pending_vol_ognt) 
+
+  io.inner.release.ready := irel_can_merge || irel_same_xact
+
   mergeDataInner(io.inner.release)
 
-  // Send outer request for miss
-  //outerAcquire(s_busy)
+  // If there was a writeback, forward it outwards
+  outerRelease(outer_coh.onHit(M_XWR), data_buffer(orel_data_idx))
 
+  // Send outer request for miss
+  outerAcquire(
+    caching = !xact_iacq.isBuiltInType(),
+    coh = outer_coh,
+    data = data_buffer(oacq_data_idx),
+    wmask = wmask_buffer(oacq_data_idx),
+    next = s_busy)
+    
   // Handle the response from outer memory
-  io.outer.grant.ready := state === s_busy
   mergeDataOuter(io.outer.grant)
 
   // Acknowledge or respond with data
   innerGrant(
-    inner_coh.makeGrant(
-      sec = ignt_q.io.deq.bits,
-      manager_xact_id = UInt(trackerId), 
-      data = data_buffer(ignt_data_idx)),
-    UInt(0))
+    ignt_data = data_buffer(ignt_data_idx),
+    ignt_pending = pending_orel || pending_ognt || pending_vol_ognt)
 
-  // We must wait for as many Finishes as we sent Grants
-  io.inner.finish.ready := state === s_busy
-
-  // Wait for everything to quiesce
-  when(state === s_busy && all_pending_done) {
+  when(iacq_is_allocating) {
     wmask_buffer.foreach { w => w := UInt(0) } // This is the only reg that must be clear in s_idle
-    state := s_idle
+    initializeProbes()
   }
 
-  assert(!(state =/= s_idle && io.matches.iacq && io.inner.acquire.fire() &&
-    io.iacq().client_id =/= xact_iacq.client_id),
-    "AcquireTracker accepted data beat from different network source than initial request.")
+  initDataInner(io.inner.acquire, iacq_is_accepted)
 
-  assert(!(state =/= s_idle && io.matches.iacq && io.inner.acquire.fire() &&
-    io.iacq().client_xact_id =/= xact_iacq.client_xact_id),
-    "AcquireTracker accepted data beat from different client transaction than initial request.")
+  // Wait for everything to quiesce
+  quiesce()
 
-  assert(!(state === s_idle && io.inner.acquire.fire() && io.alloc.iacq &&
-    io.iacq().hasMultibeatData() && io.iacq().addr_beat =/= UInt(0)),
-    "AcquireTracker initialized with a tail data beat.")
-
-  assert(!(state =/= s_idle && xact_iacq.isBuiltInType() && (xact_iacq.isPrefetch() || xact_iacq.isAtomic())),
-    "Broadcast Hub does not support PutAtomics or prefetches") // TODO add support?
 }
