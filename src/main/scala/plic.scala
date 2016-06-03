@@ -49,7 +49,7 @@ case class PLICConfig(nHartsIn: Int, supervisor: Boolean, nDevices: Int, nPriori
 
   require(nDevices > 0 && nDevices <= maxDevices)
   require(nHarts > 0 && nHarts <= maxHarts)
-  require(nPriorities > 0 && nPriorities <= nDevices)
+  require(nPriorities >= 0 && nPriorities <= nDevices)
 }
 
 /** Platform-Level Interrupt Controller */
@@ -62,7 +62,9 @@ class PLIC(val cfg: PLICConfig)(implicit val p: Parameters) extends Module
     val tl = new ClientUncachedTileLinkIO().flip
   }
 
-  val priority = Reg(Vec(cfg.nDevices+1, UInt(width=log2Up(cfg.nPriorities+1))))
+  val priority =
+    if (cfg.nPriorities > 0) Reg(Vec(cfg.nDevices+1, UInt(width=log2Up(cfg.nPriorities+1))))
+    else Wire(init=Vec.fill(cfg.nDevices+1)(UInt(1)))
   val pending = Reg(init=Vec.fill(cfg.nDevices+1){Bool(false)})
   val enables = Reg(Vec(cfg.nHarts, UInt(width = cfg.nDevices+1)))
   val threshold = Reg(Vec(cfg.nHarts, UInt(width = log2Up(cfg.nPriorities+1))))
@@ -95,9 +97,9 @@ class PLIC(val cfg: PLICConfig)(implicit val p: Parameters) extends Module
   }
 
   val acq = Queue(io.tl.acquire, 1)
-  val read = acq.valid && acq.bits.isBuiltInType(Acquire.getType)
-  val write = acq.valid && acq.bits.isBuiltInType(Acquire.putType)
-  assert(!acq.valid || read || write, "unsupported PLIC operation")
+  val read = acq.fire() && acq.bits.isBuiltInType(Acquire.getType)
+  val write = acq.fire() && acq.bits.isBuiltInType(Acquire.putType)
+  assert(!acq.fire() || read || write, "unsupported PLIC operation")
   val addr = acq.bits.full_addr()(log2Up(cfg.size)-1,0)
 
   val claimant =
@@ -114,10 +116,10 @@ class PLIC(val cfg: PLICConfig)(implicit val p: Parameters) extends Module
       pending(myMaxDev) := false
     }.elsewhen (write && acq.bits.wmask()(cfg.claimOffset)) {
       val dev = (acq.bits.data >> (8 * cfg.claimOffset))(log2Up(pending.size)-1,0)
-      when (write && myEnables(dev)) { io.devices(dev-1).complete := true }
+      when (myEnables(dev)) { io.devices(dev-1).complete := true }
     }.elsewhen (write) {
       val thresh = acq.bits.data(log2Up(pending.size)-1,0)
-      when (write) { threshold(claimant) := thresh }
+      threshold(claimant) := thresh
     }
   }.elsewhen (addr >= cfg.enableBase) {
     rdata := myEnables
@@ -147,7 +149,7 @@ class PLIC(val cfg: PLICConfig)(implicit val p: Parameters) extends Module
       when (cond) {
         rdata := Cat(priority.slice(i, i + regsPerBeat).map(p => Cat(UInt(0, 16-p.getWidth), p)).reverse)
         for (j <- 0 until (regsPerBeat min (priority.size - i))) {
-          when (write) { priority(i+j) := masked_wdata >> (j * (8 << regAddrBits)) }
+          if (cfg.nPriorities > 0) when (write) { priority(i+j) := masked_wdata >> (j * (8 << regAddrBits)) }
         }
       }
     }

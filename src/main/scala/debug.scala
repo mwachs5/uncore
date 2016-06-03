@@ -6,7 +6,6 @@ import Chisel._
 
 import junctions._
 import cde.{Parameters, Config, Field}
-import Math.{ceil, max, min}
 
 // *****************************************
 // Constants which are interesting even
@@ -72,7 +71,7 @@ object DsbBusConsts {
 
   def defaultRomContents : Array[Byte] = Array(0x6f, 0x00, 0x00, 0x06, 0x6f, 0x00, 0xc0, 0x00, 0x13, 0x04, 0xf0, 0xff,
     0x6f, 0x00, 0x80, 0x00, 0x13, 0x04, 0x00, 0x00, 0xf3, 0x24, 0x40, 0xf1,
-    0x23, 0x22, 0x90, 0x10, 0x0f, 0x00, 0xf0, 0x0f, 0xf3, 0x24, 0x00, 0xf1,
+    0x23, 0x20, 0x90, 0x10, 0x0f, 0x00, 0xf0, 0x0f, 0xf3, 0x24, 0x00, 0xf1,
     0x63, 0xc6, 0x04, 0x00, 0x83, 0x24, 0xc0, 0x43, 0x6f, 0x00, 0xc0, 0x01,
     0x93, 0x94, 0x14, 0x00, 0x63, 0xc6, 0x04, 0x00, 0x83, 0x34, 0x80, 0x43,
     0x6f, 0x00, 0xc0, 0x00, 0x13, 0x00, 0x00, 0x00, 0x23, 0x2e, 0x80, 0x42,
@@ -83,7 +82,7 @@ object DsbBusConsts {
     0x73, 0x24, 0x00, 0xf1, 0x63, 0x46, 0x04, 0x00, 0x23, 0x2e, 0x90, 0x42,
     0x67, 0x00, 0x00, 0x40, 0x13, 0x14, 0x14, 0x00, 0x63, 0x46, 0x04, 0x00,
     0x23, 0x3c, 0x90, 0x42, 0x67, 0x00, 0x00, 0x40, 0x13, 0x00, 0x00, 0x00,
-    0x67, 0x00, 0x00, 0x40, 0x73, 0x24, 0x40, 0xf1, 0x23, 0x20, 0x80, 0x10,
+    0x67, 0x00, 0x00, 0x40, 0x73, 0x24, 0x40, 0xf1, 0x23, 0x26, 0x80, 0x10,
     0x73, 0x60, 0x04, 0x7b, 0x73, 0x24, 0x00, 0x7b, 0x13, 0x74, 0x04, 0x02,
     0xe3, 0x0c, 0x04, 0xfe, 0x6f, 0xf0, 0xdf, 0xfb).map(x => x.toByte)
 
@@ -92,9 +91,9 @@ object DsbBusConsts {
 
 
 object DsbRegAddrs{
-  
-  def SETHALTNOT   = UInt(0x100)
-  def CLEARDEBINT  = UInt(0x104)
+
+  def CLEARDEBINT  = UInt(0x100)
+  def SETHALTNOT   = UInt(0x10C)
   def SERINFO      = UInt(0x110)
   def SERBASE      = UInt(0x114)
   // For each serial, there are
@@ -211,9 +210,9 @@ case class DebugModuleConfig (
 
 }
 
-class DefaultDebugModuleConfig (val xlen:Int)
+class DefaultDebugModuleConfig (val ncomponents : Int, val xlen:Int)
     extends DebugModuleConfig(
-      nComponents = 1,
+      nComponents = ncomponents,
       nDebugBusAddrSize = 5,
       nDebugRamBytes = xlen match{
         case 32  => 28
@@ -413,12 +412,12 @@ class DebugModule ()(implicit val p:cde.Parameters)
   val interruptRegs = Reg(init=Vec.fill(cfg.nComponents){Bool(false)})
 
   val haltnotRegs     = Reg(init=Vec.fill(cfg.nComponents){Bool(false)})
-  val numHaltnotStatus = (Math.ceil(cfg.nComponents / 32)).toInt
+  val numHaltnotStatus = ((cfg.nComponents - 1) / 32) + 1
 
   val haltnotStatus = Wire(Vec(numHaltnotStatus, Bits(width = 32)))
   val rdHaltnotStatus = Wire(Bits(width = 32))
-  
-  val haltnotSummary = Wire(Bits(width = 32))
+
+  val haltnotSummary = Cat(haltnotStatus.map(_.orR).reverse)
 
   // --- Debug RAM
 
@@ -432,8 +431,8 @@ class DebugModule ()(implicit val p:cde.Parameters)
   val sbRamAddrWidth    = log2Up((cfg.nDebugRamBytes * 8) / sbRamDataWidth)
   val sbRamAddrOffset   = log2Up(tlDataBits/8)
 
-  val ramDataWidth = max(dbRamDataWidth, sbRamDataWidth)
-  val ramAddrWidth  = min(dbRamAddrWidth, sbRamAddrWidth)
+  val ramDataWidth = dbRamDataWidth max sbRamDataWidth
+  val ramAddrWidth  = dbRamAddrWidth min sbRamAddrWidth
   val ramMem    = Mem(1 << ramAddrWidth , UInt(width=ramDataWidth))
   val ramAddr   = Wire(UInt(width=ramAddrWidth))
   val ramRdData = Wire(UInt(width=ramDataWidth))
@@ -540,19 +539,7 @@ class DebugModule ()(implicit val p:cde.Parameters)
   }
 
   for (ii <- 0 until numHaltnotStatus) {
-    for (jj <- 0 until 32) {
-      val component = ii * 32 + jj
-      if (component < cfg.nComponents){
-        haltnotStatus(ii)(jj) := haltnotRegs(component)
-      } else {
-        haltnotStatus(ii)(jj) := Bool(false)
-      }
-    }
-  }
-
-  haltnotSummary := Bits(0)
-  for (ii <- 0 until numHaltnotStatus) {
-    haltnotSummary(ii) := haltnotStatus(ii).orR
+    haltnotStatus(ii) := Cat(haltnotRegs.slice(ii * 32, (ii + 1) * 32).reverse)
   }
 
   //--------------------------------------------------------------
@@ -606,7 +593,7 @@ class DebugModule ()(implicit val p:cde.Parameters)
   sbRamWrData := sbWrData
 
   require (dbRamAddrWidth >= ramAddrWidth)    // SB accesses less than 32 bits Not Implemented.
-  val dbRamWrMask = Vec.fill(1 << (dbRamAddrWidth - ramAddrWidth)){Fill(dbRamDataWidth, UInt(1, width=1))}
+  val dbRamWrMask = Wire(init=Vec.fill(1 << (dbRamAddrWidth - ramAddrWidth)){Fill(dbRamDataWidth, UInt(1, width=1))})
 
   if (dbRamDataWidth < ramDataWidth){
 
@@ -802,7 +789,7 @@ class DebugModule ()(implicit val p:cde.Parameters)
     // Inspired by ROMSlave
     val romContents = cfg.debugRomContents.get
     val romByteWidth = tlDataBits / 8
-    val romRows =  Math.ceil((romContents.size + romByteWidth)/romByteWidth).toInt
+    val romRows = (romContents.size + romByteWidth - 1)/romByteWidth
     val romMem = Vec.tabulate(romRows) { ii =>
       val slice = romContents.slice(ii*romByteWidth, (ii+1)*romByteWidth)
       UInt(slice.foldRight(BigInt(0)) { case (x,y) => ((y << 8) + (x.toInt & 0xFF))}, width = romByteWidth*8)
@@ -960,67 +947,3 @@ class DebugModule ()(implicit val p:cde.Parameters)
   io.fullreset := CONTROLReg.fullreset
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// *****************************************
-// Unit Tests
-// 
-// *****************************************
-
-
-class DummyDebugModuleConfig extends cde.Config(
-    topDefinitions = { (pname, site, here) =>
-      pname match {
-        case DMKey => new DefaultDebugModuleConfig(32)
-      }
-    }
-  );
-  
-  
-  object DebugModuleTestGenerator extends App with FileSystemUtilities {
-  
-    println(args.toString())
-  
-    val projectName = args(0)
-    val topModuleName = args(1)
-    val configClassName = args(2)
-    val whatToDo = args(3)
-
-    if (whatToDo == "test") {
-
-    }
-    else{
-      val config = try {
-        Class.forName(s"$projectName.$configClassName").newInstance.asInstanceOf[Config]
-      } catch {
-        case e: java.lang.ClassNotFoundException =>
-          throwException("Unable to find configClassName \"" + configClassName +
-            "\", did you misspell it?", e)
-      }
-      val world = config.toInstance
-      val paramsFromConfig: Parameters = Parameters.root(world)
-      implicit val p = paramsFromConfig
-
-      val gen = () =>
-      Class.forName(s"$projectName.$topModuleName")
-        .getConstructor(classOf[cde.Parameters])
-        .newInstance(p)
-        .asInstanceOf[Module]
-
-      chiselMain.run(args.drop(3), gen)
-      //Driver.elaborate(gen, configName = configClassName)
-    }
-  }
-
