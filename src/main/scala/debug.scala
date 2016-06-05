@@ -69,7 +69,10 @@ object DsbBusConsts {
    * See the Debug Specification for the code.
    */
 
-  def defaultRomContents : Array[Byte] = Array(0x6f, 0x00, 0x00, 0x06, 0x6f, 0x00, 0xc0, 0x00, 0x13, 0x04, 0xf0, 0xff,
+  // See $RISCV/riscv-tools/riscv-isa-sim/debug_rom/debug_rom.h
+
+  def defaultRomContents : Array[Byte] = Array(
+    0x6f, 0x00, 0x00, 0x06, 0x6f, 0x00, 0xc0, 0x00, 0x13, 0x04, 0xf0, 0xff,
     0x6f, 0x00, 0x80, 0x00, 0x13, 0x04, 0x00, 0x00, 0xf3, 0x24, 0x40, 0xf1,
     0x23, 0x20, 0x90, 0x10, 0x0f, 0x00, 0xf0, 0x0f, 0xf3, 0x24, 0x00, 0xf1,
     0x63, 0xc6, 0x04, 0x00, 0x83, 0x24, 0xc0, 0x43, 0x6f, 0x00, 0xc0, 0x01,
@@ -78,14 +81,13 @@ object DsbBusConsts {
     0x73, 0x24, 0x00, 0x7b, 0x13, 0x74, 0x84, 0x00, 0x63, 0x04, 0x04, 0x00,
     0x6f, 0x00, 0x80, 0x05, 0x73, 0x24, 0x20, 0x7b, 0x73, 0x00, 0x20, 0x7b,
     0x73, 0x10, 0x24, 0x7b, 0x73, 0x24, 0x00, 0x7b, 0x13, 0x74, 0x04, 0x1c,
-    0x13, 0x04, 0xd4, 0xff, 0x63, 0x18, 0x04, 0x02, 0x0f, 0x10, 0x00, 0x00,
+    0x13, 0x04, 0x04, 0xf4, 0x63, 0x18, 0x04, 0x02, 0x0f, 0x10, 0x00, 0x00,
     0x73, 0x24, 0x00, 0xf1, 0x63, 0x46, 0x04, 0x00, 0x23, 0x2e, 0x90, 0x42,
     0x67, 0x00, 0x00, 0x40, 0x13, 0x14, 0x14, 0x00, 0x63, 0x46, 0x04, 0x00,
     0x23, 0x3c, 0x90, 0x42, 0x67, 0x00, 0x00, 0x40, 0x13, 0x00, 0x00, 0x00,
     0x67, 0x00, 0x00, 0x40, 0x73, 0x24, 0x40, 0xf1, 0x23, 0x26, 0x80, 0x10,
     0x73, 0x60, 0x04, 0x7b, 0x73, 0x24, 0x00, 0x7b, 0x13, 0x74, 0x04, 0x02,
     0xe3, 0x0c, 0x04, 0xfe, 0x6f, 0xf0, 0xdf, 0xfb).map(x => x.toByte)
-
 }
 
 
@@ -214,9 +216,13 @@ class DefaultDebugModuleConfig (val ncomponents : Int, val xlen:Int)
     extends DebugModuleConfig(
       nComponents = ncomponents,
       nDebugBusAddrSize = 5,
+      // While smaller numbers are theoretically
+      // possible as noted in the Spec,
+      // the ROM image would need to be
+      // adjusted accordingly.
       nDebugRamBytes = xlen match{
-        case 32  => 28
-        case 64  => 40
+        case 32  => 64 
+        case 64  => 64
         case 128 => 64
       },
       debugRomContents = Some(DsbBusConsts.defaultRomContents),
@@ -349,6 +355,7 @@ class DebugModule ()(implicit val p:cde.Parameters)
     val access32      = Bool()
     val access16      = Bool()
     val accesss8      = Bool()
+    val dramsize      = UInt(width = 6)
     val haltsum       = Bool()
     val reserved1     = Bits(width = 3)
     val authenticated = Bool()
@@ -568,12 +575,13 @@ class DebugModule ()(implicit val p:cde.Parameters)
   DMINFORdData.access32      := Bool(cfg.hasAccess32)
   DMINFORdData.access16      := Bool(cfg.hasAccess16)
   DMINFORdData.accesss8      := Bool(cfg.hasAccess8)
+  DMINFORdData.dramsize      := Bits((cfg.nDebugRamBytes >> 2) - 1) // Size in 32-bit words minus 1.
   DMINFORdData.haltsum       := Bool(cfg.hasHaltSum)
   DMINFORdData.reserved1     := Bits(0)
-  DMINFORdData.authenticated := Bool(true) // Not Implemented.
+  DMINFORdData.authenticated := Bool(true)  // Not Implemented.
   DMINFORdData.authbusy      := Bool(false) // Not Implemented.
   DMINFORdData.authtype      := UInt(cfg.authType.id)
-  DMINFORdData.version       := UInt(0)
+  DMINFORdData.version       := UInt(1)     // Conforms to RISC-V Debug Spec
 
   HALTSUMRdData.serialfull  := Bool(false) // Not Implemented
   HALTSUMRdData.serialvalid := Bool(false) // Not Implemented
@@ -834,9 +842,9 @@ class DebugModule ()(implicit val p:cde.Parameters)
 
     // Pick out the correct word based on the address.
     val sbWrDataWords = Vec.tabulate (tlDataBits / 32) {ii => sbWrData((ii+1)*32 - 1, ii*32)}
-    val sbWrMaskWords = Vec.tabulate(tlDataBits/32) {ii => sbWrMask ((ii+1)*32 -1, ii*32)}
+    val sbWrMaskWords = Vec.tabulate (tlDataBits / 32) {ii => sbWrMask ((ii+1)*32 -1, ii*32)}
 
-    val sbWrSelTop = log2Up(tlDataBits/8)
+    val sbWrSelTop = log2Up(tlDataBits/8) - 1
     val sbWrSelBottom = 2
 
     SETHALTNOTWrData  := sbWrDataWords(SETHALTNOT(sbWrSelTop, sbWrSelBottom))
@@ -846,13 +854,15 @@ class DebugModule ()(implicit val p:cde.Parameters)
       sbRamWrEn := sbWrEn
       sbRamRdEn := sbRdEn
     }
- 
-    SETHALTNOTWrEn := sbAddr(sbAddrWidth - 1, sbWrSelTop) === SETHALTNOT(sbAddrWidth-1, sbWrSelTop) &&
-    sbWrMaskWords(SETHALTNOT(sbWrSelTop, sbWrSelBottom)).orR &&
+
+    println ("sbWrSelTop is " + sbWrSelTop + " sbWrSelBottom is " + sbWrSelBottom) 
+
+    SETHALTNOTWrEn := sbAddr(sbAddrWidth - 1, sbWrSelTop + 1) === SETHALTNOT(sbAddrWidth-1, sbWrSelTop + 1) &&
+    (sbWrMaskWords(SETHALTNOT(sbWrSelTop, sbWrSelBottom))).orR &&
     sbWrEn
 
-    CLEARDEBINTWrEn := sbAddr(sbAddrWidth - 1, sbWrSelTop) === CLEARDEBINT(sbAddrWidth-1, sbWrSelTop) &&
-    sbWrMaskWords(CLEARDEBINT(sbWrSelTop, sbWrSelBottom)).orR &&
+    CLEARDEBINTWrEn := sbAddr(sbAddrWidth - 1, sbWrSelTop + 1) === CLEARDEBINT(sbAddrWidth-1, sbWrSelTop + 1) &&
+    (sbWrMaskWords(CLEARDEBINT(sbWrSelTop, sbWrSelBottom))).orR &&
     sbWrEn
 
   }
@@ -888,8 +898,7 @@ class DebugModule ()(implicit val p:cde.Parameters)
     Acquire.getType, Acquire.getBlockType, Acquire.putType, Acquire.putBlockType
   ).map(sbAcqReg.isBuiltInType _)
 
-  val sbMultibeat = sbReg_getblk
-
+  val sbMultibeat = sbReg_getblk & sbAcqValidReg;
 
   val sbBeatInc1 = sbAcqReg.addr_beat + UInt(1)
  
